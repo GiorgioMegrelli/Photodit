@@ -2,11 +2,50 @@
 <html>
 <head>
     <title>Photodit</title>
-    <meta charset="utf-8">
 
-    <link rel="stylesheet" href="../styles/reset-css.css">
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="../public/styles/reset-css.css" rel="stylesheet">
+    <link href="../public/styles/index-css.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <div class="header">
+        <div class="header-left">
+            <ul class="menu-list-1">
+                <li id="menu-list-id1">Edit</li>
+                <li id="menu-list-id2">Color Picker</li>
+            </ul>
+        </div>
+        <div class="header-logo">
+            <p>Photodit</p>
+        </div>
+        <div class="header-right">
+            <ul class="menu-list-2">
+                <li id="menu-list-id3">Board</li>
+                <li id="menu-list-id4">Camera</li>
+            </ul>
+        </div>
+    </div>
+
+    <!--<div id="camera">
+        <video autoplay id="video"></video>
+        <div class="camera-grid">
+            <% for(let i = 0; i<9; i++) { %>
+                <div></div>
+            <% } %>
+        </div>
+    </div>
+
+    <button type="button" onclick="fun()">Click!</button>-->
+
+    <script src="../public/script/color-picker.js"></script>
+    <script src="../public/script/index-script.js"></script>
+    <script src="../public/script/index-tools.js"></script>
 </body>
 </html>

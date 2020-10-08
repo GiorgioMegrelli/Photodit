@@ -1,2 +1,8 @@
 reset-css.css:
     https://meyerweb.com/eric/tools/css/reset/
+
+camera-icon.png:
+	https://icons-for-free.com/camera-131965017355314519/
+
+Sansita Swashed Font:
+    https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap

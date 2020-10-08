@@ -1,0 +1,85 @@
+.header {
+    position: fixed;
+    width: 100%;
+    height: 70px;
+    background: #F0F0F0;
+    display: grid;
+    grid-template-columns: 42% 16% 42%;
+    transition: 1s;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.header-left, .header-logo, .header-right {
+    height: 100%;
+}
+
+.header-logo p {
+    position: relative;
+    width: 80%;
+    height: 60%;
+    top: 20%;
+    left: 10%;
+    text-align: center;
+    font-size: 40px;
+    font-family: 'Sansita Swashed', cursive;
+    cursor: pointer;
+}
+
+.menu-list-1 li, .menu-list-2 li {
+    margin-top: 18px;
+    padding: 10px 25px;
+    font-size: 22px;
+    font-family: 'Baloo Chettan 2', cursive;
+    cursor: pointer;
+    background: #EEEEEE;
+    transition: 0.5s;
+    border-radius: 5px;
+}
+
+.menu-list-1 li {
+    float: right;
+    margin-right: 20px;
+}
+
+.menu-list-2 li {
+    float: left;
+    margin-left: 20px;
+}
+/*
+.menu-list-1 li:hover, .menu-list-2 li:hover {
+    background: #E2E2E2;
+}
+*/
+
+/* Camera */
+#camera {
+    position: relative;
+    margin: 0 auto;
+    width: 640px;
+    height: 480px;
+}
+
+#video {
+    position: absolute;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    z-index: 1;
+}
+
+.camera-grid {
+    width: inherit;
+    height: inherit;
+    position: absolute;
+    display: grid;
+    grid-template-rows: auto auto auto;
+    grid-template-columns: auto auto auto;
+    z-index: 2;
+}
+
+.camera-grid div {
+    border: 1px solid;
+    box-sizing: border-box;
+}
