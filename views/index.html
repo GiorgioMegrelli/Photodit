@@ -33,6 +33,48 @@
         </div>
     </div>
 
+    <div class="color-picker">
+        <div class="color-picker-desk">
+            <div class="color-picker-menu">
+
+            </div>
+            <div class="color-picker-items">
+
+            </div>
+            <div class="color-picker-results">
+                <div class="color-picker-results-containter">
+                    <div ondblclick="copyOutput('c-p-output-rgb', 1)">
+                        <p>RGB</p>
+                        <output id="c-p-output-rgb"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-hex', 2)">
+                        <p>HEX</p>
+                        <output id="c-p-output-hex"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-cmyk', 3)">
+                        <p>CMYK</p>
+                        <output id="c-p-output-cmyk"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-hsl', 4)">
+                        <p>HSL</p>
+                        <output id="c-p-output-hsl"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-ps', 5)">
+                        <p>PhotoShop</p>
+                        <output id="c-p-output-ps"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-named', 6)">
+                        <p>Color Name</p>
+                        <output id="c-p-output-named"></output>
+                    </div>
+                </div>
+                <p class="color-picker-results-title">
+                    Double Click to Copy
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!--<div id="camera">
         <video autoplay id="video"></video>
         <div class="camera-grid">

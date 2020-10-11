@@ -1,5 +1,8 @@
+/*
+    header
+*/
+
 .header {
-    position: fixed;
     width: 100%;
     height: 70px;
     background: #F0F0F0;
@@ -48,13 +51,85 @@
     float: left;
     margin-left: 20px;
 }
-/*
-.menu-list-1 li:hover, .menu-list-2 li:hover {
-    background: #E2E2E2;
-}
-*/
 
-/* Camera */
+
+/*
+    color-picker
+*/
+.color-picker {
+    position: relative;
+    margin-top: 30px;
+    width: 100%;
+    height: 550px;
+}
+
+.color-picker-desk {
+    position: relative;
+    margin: 0 auto;
+    top: 50px;
+    width: 800px;
+    height: 450px;
+    background: White;
+    display: grid;
+    grid-template-columns: 20% auto 26%;
+    font-family: 'Baloo Chettan 2', cursive;
+    border-radius: 10px;
+}
+
+.color-picker-menu {
+    background: red;
+    display: grid;
+    grid-template-rows: auto;
+}
+
+.color-picker-results {
+    background: #FAFAFA;
+}
+
+.color-picker-results p {
+    width: 100%;
+    text-align: center;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.color-picker-results-title {
+    width: 100%;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 16px;
+    color: Silver;
+}
+
+.color-picker-results-containter {
+    width: 100%;
+    height: 375px;
+    margin-top: 20px;
+    display: grid;
+    grid-template-rows: auto;
+}
+
+.color-picker-results-containter p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #B4B4B4;
+}
+
+.color-picker-results-containter output {
+    display: block;
+    width: 100%;
+    margin-top: 7px;
+    text-align: center;
+    font-size: 18px;
+    cursor: context-menu;
+}
+
+
+/*
+    Camera
+*/
 #camera {
     position: relative;
     margin: 0 auto;

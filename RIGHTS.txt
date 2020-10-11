@@ -6,3 +6,7 @@ camera-icon.png:
 
 Sansita Swashed Font:
     https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap
+
+Color Converting:
+    https://gist.github.com/felipesabino/5066336
+    https://css-tricks.com/converting-color-spaces-in-javascript/

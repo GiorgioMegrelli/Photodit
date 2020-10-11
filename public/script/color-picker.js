@@ -141,45 +141,18 @@ const namedColors = {
 
 
 function randomColor(rule) {
-    let rand = function rand(bound) {
-        return Math.floor(Math.random()*bound);
-    };
     let randVal = function randVal() {
-        return rand(256);
+        return Math.floor(Math.random()*256)
     };
-    let valid = function valid(n) {
-        if(n < 0) return 0;
-        if(n > 255) return 255;
-        return n;
-    }
-    let randIn = function randIn() {
-        return arguments[rand(arguments.length)];
-    };
-    if(rule === undefined) {
-        return {r: randVal(), g: randVal(), b: randVal()};
-    }
-    let r, g, b, min, max, right, left;
-    r = randVal();
-    g = randVal();
-    min = Math.min(r, g);
-    max = Math.max(r, g);
-    right = randVal(valid(min - 10));
-    left = max + randVal(valid(max - min + 1));
-    if(Math.abs(r - g) <= 20) {
-        b = randIn(right, left);
-    } else {
-        let mid = min + 10 + randVal(max - min - 20 + 1);
-        b = randIn(right, mid, left);
-    }
-    return {r: r, g: g, b: b};
+    return {r: randVal(), g: randVal(), b: randVal()};
 }
 
 
-function RGBtoHEX(r, g, b) {
-    let r16 = ((r <= 15)? "0": "") + r.toString(16);
-    let g16 = ((g <= 15)? "0": "") + g.toString(16);
-    let b16 = ((b <= 15)? "0": "") + b.toString(16);
-    return r16 + g16 + b16;
+function RGBtoHEX(rgb) {
+    let r16 = ((rgb.r <= 15)? "0": "") + rgb.r.toString(16);
+    let g16 = ((rgb.g <= 15)? "0": "") + rgb.g.toString(16);
+    let b16 = ((rgb.b <= 15)? "0": "") + rgb.b.toString(16);
+    return (r16 + g16 + b16).toUpperCase();
 }
 
 function HEXtoRGB(hex) {
@@ -196,11 +169,11 @@ function HEXtoRGB(hex) {
     return {r: hexes[0], g: hexes[1], b: hexes[2]};
 }
 
-function RGBtoCMYK(r, g, b) {
-    let c, m, y, k;
-    r /= 255;
-    g /= 255;
-    b /= 255;
+function RGBtoCMYK(rgb) {
+    let c, m, y, k, r, g, b;
+    r = rgb.r/255;
+    g = rgb.g/255;
+    b = rgb.b/255;
 
     k = Math.min( 1 - r, 1 - g, 1 - b );
     c = (1 - r - k)/(1 - k);
@@ -215,12 +188,12 @@ function RGBtoCMYK(r, g, b) {
     return {c: c, m: m, y: y, k: k};
 }
 
-function CMYKtoRGB(c, m, y, k) {
-    let r, g, b;
-    c /= 100;
-    m /= 100;
-    y /= 100;
-    k /= 100;
+function CMYKtoRGB(cmyk) {
+    let r, g, b, c, m, y, k;
+    c = cmyk.c/100;
+    m = cmyk.m/100;
+    y = cmyk.y/100;
+    k = cmyk.k/100;
 
     r = 1 - Math.min(1, c*(1 - k) + k);
 	g = 1 - Math.min(1, m*(1 - k) + k);
@@ -231,4 +204,88 @@ function CMYKtoRGB(c, m, y, k) {
     b = Math.round(b*255);
 
     return {r: r, g: g, b: b};
+}
+
+function RGBtoHSL(rgb) {
+    let r, g, b;
+    r = rgb.r/255;
+    g = rgb.g/255;
+    b = rgb.b/255;
+
+    let cmax = Math.max(r, g, b);
+    let cmin = Math.min(r, g, b);
+    let delta = cmax - cmin;
+
+    let h = 0, s = 0, l = 0;
+
+    if(delta == 0) {
+        h = 0;
+    } else if(cmax == r) {
+        h = ((g - b)/delta)%6;
+    } else if(cmax == g) {
+        h = (b - r)/delta + 2;
+    } else {
+        h = (r - g)/delta + 4;
+    }
+
+    h = Math.round(h*60);
+
+    if(h < 0) h += 360
+
+    l = (cmax + cmin)/2;
+
+    if(delta != 0) {
+        s = delta/(1 - Math.abs(2*l - 1));
+    }
+
+    s = Math.round(Math.abs(s*100));
+    l = Math.round(Math.abs(l*100));
+
+    return {h: h, s: s, l: l};
+}
+
+function HSLtoRGB(hsl) {
+    let h = hsl.h;
+    let s = hsl.s;
+    let l = hsl.l;
+
+    s /= 100;
+    l /= 100;
+
+    let c = (1 - Math.abs(2*l - 1)) * s;
+    let x = c*(1 - Math.abs((h/60)%2 - 1));
+    let m = l - c/2;
+    let r = 0, g = 0, b = 0;
+
+    if (0 <= h && h < 60) {
+        r = c; g = x; b = 0;
+    } else if (h < 120) {
+        r = x; g = c; b = 0;
+    } else if (h < 180) {
+        r = 0; g = c; b = x;
+    } else if (h < 240) {
+        r = 0; g = x; b = c;
+    } else if (h < 300) {
+        r = x; g = 0; b = c;
+    } else if (h < 360) {
+        r = c; g = 0; b = x;
+    }
+
+    r = Math.round((r + m)*255);
+    g = Math.round((g + m)*255);
+    b = Math.round((b + m)*255);
+
+    return {r: r, g: g, b: b};
+}
+
+function RGBStr(rgb) {
+    return (rgb.r + ", " + rgb.g + ", " + rgb.b);
+}
+
+function CMYKStr(cmyk) {
+    return (cmyk.c + "%, " + cmyk.m  + "%, " + cmyk.y  + "%, " + cmyk.k  + "%");
+}
+
+function HSLStr(hsl) {
+    return (hsl.h + ", " + hsl.s + "%, " + hsl.l + "%");
 }
