@@ -12,6 +12,7 @@
 #### პროფილი:
 - პროგილზე გამოჩნდება მომხმარებლის ატვირთული სურათები
 - მიმდინარე მომხმარებლის გამომწერები და გამოწერილი მომხმარებლები
+- ველი, საიდანაც შესაძლებელი იქნება ახალი მომხმარებლების მოძებნა
 - გამოწერილი მომხმარებლების ახალი სურათები
 - კვირის/თვის ყველაზე მოწონებადი/დაკომენტარებული სურათი
 
@@ -27,7 +28,8 @@
 ```
 npm install
 ```
-#### Create Tables in mysql Database with script.sql
+#### Create Tables in mysql Database with "script.sql" in "database" directory
+#### Update connection arguments in "script.sql" to your mysql server
 #### Start Project:
 ```
 npm start
