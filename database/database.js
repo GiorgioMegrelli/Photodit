@@ -19,6 +19,11 @@ const tables = {
     "visibility": "Visibility"
 };
 
+const cryptoConfigs = {
+    "algorithm": "sha256",
+    "digest": "hex"
+};
+
 const imgExtentions = {
     "PNG": 1,
     "GIF": 2,
@@ -26,10 +31,15 @@ const imgExtentions = {
     "JPEG": 3
 };
 
-const cryptoConfigs = {
-    "algorithm": "sha256",
-    "digest": "hex"
+const imgExtentionsIndex = ["", "PNG", "GIF", "JPEG"];
+
+const visibilities = {
+    "PUBLIC": 1,
+    "PROTECTED": 2,
+    "PRIVATE": 3
 };
+
+const visibilitiesIndex = ["", "PUBLIC", "PROTECTED", "PRIVATE"];
 
 
 connection.connect(function(err) {
@@ -44,28 +54,15 @@ function hash(str) {
     .digest(cryptoConfigs.digest);
 }
 
-function addUser(uname, password) {
-    const sql = "INSERT INTO " + tables.users + " (USERNAME, PASSWORD) VALUES (?, ?)";
+function addUser(uname, password, email) {
+    const sql = "INSERT INTO " + tables.users + " (USERNAME, PASSWORD, EMAIL) VALUES (?, ?, ?)";
     const username = uname.trim().toLowerCase();
     const hashpass = hash(password.trim());
-    connection.query(sql, [username, hashpass], function(err) {
+    email = (email === undefined)? null: email;
+    connection.query(sql, [username, hashpass, email], function(err) {
         if(err) {
             console.log(err);
         }
-    });
-}
-
-function checkPassword(uname, password, caller) {
-    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.users + " WHERE USERNAME = ? AND PASSWORD = ?";
-    const username = uname.trim().toLowerCase();
-    const hashpass = hash(password.trim());
-    connection.query(sql, [username, hashpass], function(err, rows) {
-        if(err) {
-            console.log(err);
-            caller(false);
-            return;
-        }
-        caller(rows[0].RESULT > 0);
     });
 }
 
@@ -79,6 +76,39 @@ function checkUsername(uname, caller) {
             return;
         }
         caller(rows[0].RESULT > 0);
+    });
+}
+
+function checkPassword(uname, password, caller) {
+    /* This function should be called after checkUsername */
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.users + " WHERE USERNAME = ? AND PASSWORD = ?";
+    const username = uname.trim().toLowerCase();
+    const hashpass = hash(password.trim());
+    connection.query(sql, [username, hashpass], function(err, rows) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        caller(rows[0].RESULT > 0);
+    });
+}
+
+function checkPassword2(uname, password, caller) {
+    const sql = "SELECT PASSWORD FROM " + tables.users + " WHERE USERNAME = ?";
+    const username = uname.trim().toLowerCase();
+    const hashpass = hash(password.trim());
+    connection.query(sql, [username], function(err, results) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        if(rows.length == 0) {
+            caller(false);
+        } else {
+            caller(results[0].PASSWORD === hashpass);
+        }
     });
 }
 
@@ -162,10 +192,11 @@ function getComments(id, caller) {
 }
 
 
-exports = {
+module.exports = {
     addUser: addUser,
-    checkPassword: checkPassword,
     checkUsername: checkUsername,
+    checkPassword: checkPassword,
+    checkPassword2: checkPassword2,
     getUser: getUser,
     photoExists: photoExists,
     countLikes: countLikes,
