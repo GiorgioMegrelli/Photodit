@@ -3,7 +3,6 @@
 <head>
     <title>Photodit</title>
 
-    <!-- meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -11,83 +10,30 @@
     <link href="../public/styles/index-css.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="header">
-        <div class="header-left">
-            <ul class="menu-list-1">
-                <li id="menu-list-id1">Edit</li>
-                <li id="menu-list-id2">Color Picker</li>
-            </ul>
-        </div>
-        <div class="header-logo">
-            <p>Photodit</p>
-        </div>
-        <div class="header-right">
-            <ul class="menu-list-2">
-                <li id="menu-list-id3">Board</li>
-                <li id="menu-list-id4">Camera</li>
-            </ul>
-        </div>
+        <p>Photodit</p>
     </div>
 
-    <div class="color-picker">
-        <div class="color-picker-desk">
-            <div class="color-picker-menu">
+    <p style="font-size: 20px;">Log In</p>
+    <form action="/login" id="login-form" method="post">
+        <input type="text" name="uname" id="log-uname" placeholder="Username" required><br>
+        <input type="password" name="password" id="log-password" placeholder="Password" required><br>
+        <input type="button" value="Log In" onclick="login()">
+    </form>
 
-            </div>
-            <div class="color-picker-items">
+    <br>
 
-            </div>
-            <div class="color-picker-results">
-                <div class="color-picker-results-containter">
-                    <div ondblclick="copyOutput('c-p-output-rgb', 1)">
-                        <p>RGB</p>
-                        <output id="c-p-output-rgb"></output>
-                    </div>
-                    <div ondblclick="copyOutput('c-p-output-hex', 2)">
-                        <p>HEX</p>
-                        <output id="c-p-output-hex"></output>
-                    </div>
-                    <div ondblclick="copyOutput('c-p-output-cmyk', 3)">
-                        <p>CMYK</p>
-                        <output id="c-p-output-cmyk"></output>
-                    </div>
-                    <div ondblclick="copyOutput('c-p-output-hsl', 4)">
-                        <p>HSL</p>
-                        <output id="c-p-output-hsl"></output>
-                    </div>
-                    <div ondblclick="copyOutput('c-p-output-ps', 5)">
-                        <p>PhotoShop</p>
-                        <output id="c-p-output-ps"></output>
-                    </div>
-                    <div ondblclick="copyOutput('c-p-output-named', 6)">
-                        <p>Color Name</p>
-                        <output id="c-p-output-named"></output>
-                    </div>
-                </div>
-                <p class="color-picker-results-title">
-                    Double Click to Copy
-                </p>
-            </div>
-        </div>
-    </div>
+    <p style="font-size: 20px;">Register</p>
+    <form action="/register" id="register-from" method="post">
+        <input type="text" name="uname" id="reg-uname" placeholder="Username" required><br>
+        <input type="password" name="password" id="reg-password" placeholder="Password" required><br>
+        <input type="email" name="email" id="reg-email" placeholder="Email"><br>
+        <input type="button" value="Register" onclick="register()">
+    </form>
 
-    <!--<div id="camera">
-        <video autoplay id="video"></video>
-        <div class="camera-grid">
-            <% for(let i = 0; i<9; i++) { %>
-                <div></div>
-            <% } %>
-        </div>
-    </div>
-
-    <button type="button" onclick="fun()">Click!</button>-->
-
-    <script src="../public/script/color-picker.js"></script>
-    <script src="../public/script/index-script.js"></script>
-    <script src="../public/script/index-tools.js"></script>
+    <script src="../public/scripts/index-script.js"></script>
 </body>
 </html>

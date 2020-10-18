@@ -4,157 +4,20 @@
 
 .header {
     width: 100%;
-    height: 70px;
+    height: 60px;
     background: #F0F0F0;
-    display: grid;
-    grid-template-columns: 42% 16% 42%;
-    transition: 1s;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;
             user-select: none;
 }
 
-.header-left, .header-logo, .header-right {
-    height: 100%;
-}
-
-.header-logo p {
+.header p {
     position: relative;
-    width: 80%;
+    width: 100%;
     height: 60%;
     top: 20%;
-    left: 10%;
     text-align: center;
-    font-size: 40px;
+    font-size: 35px;
     font-family: 'Sansita Swashed', cursive;
-    cursor: pointer;
-}
-
-.menu-list-1 li, .menu-list-2 li {
-    margin-top: 18px;
-    padding: 10px 25px;
-    font-size: 22px;
-    font-family: 'Baloo Chettan 2', cursive;
-    cursor: pointer;
-    background: #EEEEEE;
-    transition: 0.5s;
-    border-radius: 5px;
-}
-
-.menu-list-1 li {
-    float: right;
-    margin-right: 20px;
-}
-
-.menu-list-2 li {
-    float: left;
-    margin-left: 20px;
-}
-
-
-/*
-    color-picker
-*/
-.color-picker {
-    position: relative;
-    margin-top: 30px;
-    width: 100%;
-    height: 550px;
-}
-
-.color-picker-desk {
-    position: relative;
-    margin: 0 auto;
-    top: 50px;
-    width: 800px;
-    height: 450px;
-    background: White;
-    display: grid;
-    grid-template-columns: 20% auto 26%;
-    font-family: 'Baloo Chettan 2', cursive;
-    border-radius: 10px;
-}
-
-.color-picker-menu {
-    background: red;
-    display: grid;
-    grid-template-rows: auto;
-}
-
-.color-picker-results {
-    background: #FAFAFA;
-}
-
-.color-picker-results p {
-    width: 100%;
-    text-align: center;
-    -webkit-user-select: none;
-       -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
-}
-
-.color-picker-results-title {
-    width: 100%;
-    margin-top: 20px;
-    text-align: center;
-    font-size: 16px;
-    color: Silver;
-}
-
-.color-picker-results-containter {
-    width: 100%;
-    height: 375px;
-    margin-top: 20px;
-    display: grid;
-    grid-template-rows: auto;
-}
-
-.color-picker-results-containter p {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #B4B4B4;
-}
-
-.color-picker-results-containter output {
-    display: block;
-    width: 100%;
-    margin-top: 7px;
-    text-align: center;
-    font-size: 18px;
-    cursor: context-menu;
-}
-
-
-/*
-    Camera
-*/
-#camera {
-    position: relative;
-    margin: 0 auto;
-    width: 640px;
-    height: 480px;
-}
-
-#video {
-    position: absolute;
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
-    z-index: 1;
-}
-
-.camera-grid {
-    width: inherit;
-    height: inherit;
-    position: absolute;
-    display: grid;
-    grid-template-rows: auto auto auto;
-    grid-template-columns: auto auto auto;
-    z-index: 2;
-}
-
-.camera-grid div {
-    border: 1px solid;
-    box-sizing: border-box;
 }
