@@ -28,9 +28,30 @@ function login() {
 }
 
 function register() {
-    let uname = byId("reg-name").value.trim();
     let password = byId("reg-password").value.trim();
-    let email = byId("reg-email").value.trim();
+    let password_rep = byId("reg-password").value.trim();
+
+    if(password !== password_rep) {
+        alert("Incorrect Repeated Password!");// TODO
+    } else {
+        let uname = byId("reg-uname").value.trim();
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                let result = parseInt(this.responseText);
+                if(result == -1) {
+                    console.error("Internal Error!");
+                } else if(result == 1) {
+                    alert("Username Already Exists!");// TODO
+                } else if(result == 0) {
+                    byId("register-form").submit();
+                }
+            }
+        };
+        xhttp.open("post", "/register-check", true);
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhttp.send("uname=" + uname);
+    }
 }
 
 function byId(id) {

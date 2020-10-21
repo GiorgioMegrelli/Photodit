@@ -29,9 +29,8 @@
     <p style="font-size: 20px;">Register</p>
     <form action="/register" id="register-form" method="post">
         <input type="text" name="uname" id="reg-uname" placeholder="Username" required><br>
-        <input type="email" name="email" id="reg-email" placeholder="Email"><br>
-        <input type="password" name="password" id="reg-password" placeholder="Password" required><br>
-        <input type="password" id="reg-password-rep" placeholder="Repeat Password" required><br>
+        <input type="password" name="password" id="reg-password" minlength="6" placeholder="Password" required><br>
+        <input type="password" id="reg-password-rep" minlength="6" placeholder="Repeat Password" required><br>
         <input type="button" value="Register" onclick="register()">
     </form>
 

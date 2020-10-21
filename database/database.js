@@ -54,28 +54,37 @@ function hash(str) {
     .digest(cryptoConfigs.digest);
 }
 
-function addUser(uname, password, email) {
-    const sql = "INSERT INTO " + tables.users + " (USERNAME, PASSWORD, EMAIL) VALUES (?, ?, ?)";
+function addUser(uname, password, caller) {
+    const sql = "INSERT INTO " + tables.users + " (USERNAME, PASSWORD) VALUES (?, ?)";
     const username = uname.trim().toLowerCase();
     const hashpass = hash(password.trim());
-    email = (email === undefined)? null: email;
-    connection.query(sql, [username, hashpass, email], function(err) {
+    connection.query(sql, [username, hashpass], function(err, result) {
         if(err) {
             console.log(err);
+            caller();
+        } else {
+            caller(result.insertId);
+        }
+    });
+}
+
+function getIdByUsername(uname, caller) {
+    const sql = "SELECT USER_ID FROM " + tables.users + " WHERE USERNAME = ?";
+    const username = uname.trim().toLowerCase();
+    connection.query(sql, [username], function(err, rows) {
+        if(err) {
+            console.log(err);
+        } else if(rows.length > 0) {
+            caller(rows[0].USER_ID);
+        } else {
+            caller(-1);
         }
     });
 }
 
 function checkUsername(uname, caller) {
-    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.users + " WHERE USERNAME = ?";
-    const username = uname.trim().toLowerCase();
-    connection.query(sql, [username], function(err, rows) {
-        if(err) {
-            console.log(err);
-            caller(false);
-            return;
-        }
-        caller(rows[0].RESULT > 0);
+    getIdByUsername(uname, function(result) {
+        caller(result > 0);
     });
 }
 
@@ -113,7 +122,7 @@ function checkPassword2(uname, password, caller) {
 }
 
 function getUser(id, caller) {
-    const sql = "SELECT USERNAME, CREATE_DATE FROM " + tables.users + " WHERE USER_ID = ?";
+    const sql = "SELECT USERNAME, EMAIL, CREATE_DATE FROM " + tables.users + " WHERE USER_ID = ?";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -122,13 +131,26 @@ function getUser(id, caller) {
         caller({
             USER_ID: id,
             USERNAME: results[0].USERNAME,
+            EMAIL: results[0].EMAIL,
             CREATE_DATE: results[0].CREATE_DATE.toString()
+            // TOOD
         });
     });
 }
 
-function addPhoto() {
+function addPhoto(userId, ofilename, desc, type, caller) {
+    const sql = "INSERT INTO " + tables.photos
+    + " (AUTHOR_ID, FMT_ID, DESCRIPTION, TYPE_ID) VALUES (?, ?, ?, ?)";
 
+    const extention = ofilename.split(".")[1].toUpperCase();
+    connection.query(sql, [userId, imgExtentions[extention], desc, type], function(err, result) {
+        if(err) {
+            console.log(err);
+        } else {
+            const newName = result.insertId + "." + extention;
+            caller(newName);
+        }
+    });
 }
 
 function photoExists(id, caller) {
@@ -137,9 +159,9 @@ function photoExists(id, caller) {
         if(err) {
             console.log(err);
             caller(false);
-            return;
+        } else {
+            caller(rows[0].RESULT > 0);
         }
-        caller(rows[0].RESULT > 0);
     });
 }
 
@@ -194,10 +216,12 @@ function getComments(id, caller) {
 
 module.exports = {
     addUser: addUser,
+    getIdByUsername: getIdByUsername,
     checkUsername: checkUsername,
     checkPassword: checkPassword,
     checkPassword2: checkPassword2,
     getUser: getUser,
+    addPhoto: addPhoto,
     photoExists: photoExists,
     countLikes: countLikes,
     getLikes: getLikes,

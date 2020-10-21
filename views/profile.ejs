@@ -7,6 +7,16 @@
 
     <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="imgpath" accept="image/png, image/gif, image/jpeg">
+        <p>
+            <label for="upload_in_vt_1">Public</label>
+            <input type="radio" name="visiType" value="1" id="upload_in_vt_1">
+            <label for="upload_in_vt_2">Protected</label>
+            <input type="radio" name="visiType" value="2" id="upload_in_vt_2">
+            <label for="upload_in_vt_3">Private</label>
+            <input type="radio" name="visiType" value="3" id="upload_in_vt_3" checked>
+        </p>
+        <textarea name="desc" maxlength="512" placeholder="Image Description"></textarea>
+        <br>
         <input type="submit">
     </form>
 
