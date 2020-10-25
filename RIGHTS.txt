@@ -5,7 +5,7 @@ camera-icon.png:
 	https://icons-for-free.com/camera-131965017355314519/
 
 Sansita Swashed Font:
-    https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap
+    https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@400&display=swap
 
 Color Converting:
     https://gist.github.com/felipesabino/5066336
