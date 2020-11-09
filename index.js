@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const ejs = require("ejs");
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
@@ -21,12 +20,13 @@ const upload = multer({
 app.set("view engine", "ejs");
 
 app.use("/public", express.static(__dirname + "/public"));
+app.use("/upload", express.static(__dirname + "/upload"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(session({secret: "3.14159265359", saveUninitialized: true, resave: true}));
 
 
-app.get("/", function(request, response) {
+app.get(["/", "/index.html"], function(request, response) {
     response.render("index");
 });
 
@@ -97,12 +97,17 @@ app.get("/profile", function(request, response) {
     if(currentUser === undefined) {
         response.redirect("/");
     } else {
-        response.render("profile", {});
+        //response.render("profile", {});
+        response.sendFile(__dirname + "/views/profile.html");
     }
 });
 
 app.post("/upload", upload.single("imgpath"), function(request, response) {
     const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+        return;
+    }
     const originName = request.file.originalname;
     const filePath = request.file.path;
     const visiType = parseInt(request.body.visiType);
@@ -117,13 +122,70 @@ app.post("/upload", upload.single("imgpath"), function(request, response) {
 });
 
 app.get("/user/:userId", function(request, response) {
-    console.log(request.query);
-    // TODO
+    const userId = request.params.userId;
+    console.log(userId);
 });
 
 app.get("/image/:imageId", function(request, response) {
-    console.log(request.query);
-    // TODO
+    const imageId = request.params.imageId;
+    const reTypes = {
+        RETURN_ERR: -1,
+        RETURN_FALSE: 0,
+        RETURN_TRUE: 1
+    };
+    let returnVal = {};
+    if(isNaN(imageId)) {
+        returnVal["reType"] = RETURN_ERR;
+        returnVal["msg"] = "Invalid URL of Image";
+    } else {
+        const id = parseInt(imageId);
+        const visibilities = {
+            PUBLIC: 1,
+            PROTECTED: 2,
+            PRIVATE: 3
+        };
+        database.getPhoto(id, function(result) {
+            // TODO
+            if(result === undefined) {
+                returnVal["reType"] = RETURN_FALSE;
+                returnVal["msg"] = "Image with this ID: " + id + " - doesn't Exist";
+            } else {
+                /*const vType = parseInt(result2.TYPE_ID);
+                if(vType == visibilities.PRIVATE) {
+                    returnVal["msg"] = "Only Owner of this Image can see it!";
+                } else {
+                    returnVal["img"] = {};
+                    returnVal["img"].push(result);
+                }
+                returnVal["reType"] = RETURN_TRUE;*/
+            }
+            returnVal["vars"] = Object.assign(reTypes, visibilities);
+            //response.render("image", returnVal);
+            request.session.imageId = imageId;
+            response.sendFile(__dirname + "/views/image.html");
+            //response.render("image");
+            // TODO: set img id to session
+        });
+    }
+});
+
+app.post("/loadComments", function(request, response) {
+    const imageId = request.session.imageId;
+    database.getComments(imageId, function(results) {
+        for(let i = 0; i<results.length; i++) {
+            results[i].COMMENT_DATE = results[i].COMMENT_DATE.toString();
+        }
+        response.send(JSON.stringify(results));
+    });
+});
+
+app.post("/addComment", function(request, response) {
+    const currentUser = request.session.thisUserId;
+    const comment = request.body.comment;
+    const imageId = request.session.thisImageId;
+    database.addComment(currentUser, comment, imageId, function(result) {
+        response.send({result: (result !== undefined)});
+    });
 });
 
 

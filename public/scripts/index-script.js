@@ -1,3 +1,16 @@
+function testFun() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            document.body.innerHTML = this.responseText;
+        }
+    };
+    xhttp.open("post", "/test", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send();
+}
+
+
 function login() {
     let uname = byId("log-uname").value.trim();
     let password = byId("log-password").value.trim();

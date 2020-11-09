@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'SansitaSwashed';
+    src:
+        url("Sansita_Swashed/SansitaSwashed-VariableFont_wght.ttf") format('truetype'),
+        url("Sansita_Swashed/SansitaSwashed-VariableFont_wght.woff") format('woff');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src:
+        url("Roboto/Roboto.ttf") format('truetype'),
+        url("Roboto/Roboto.woff") format('woff');
+}

@@ -9,26 +9,26 @@ const connection = mysql.createConnection({
 
 
 const tables = {
-    "users": "Users",
-    "img_fmts": "Img_Formats",
-    "photos": "Photos",
-    "likes": "Likes",
-    "comments": "Comments",
-    "followings": "Followings",
-    "vis_type": "Visibility_Type",
-    "visibility": "Visibility"
+    users: "Users",
+    img_fmts: "Img_Formats",
+    photos: "Photos",
+    likes: "Likes",
+    comments: "Comments",
+    followings: "Followings",
+    vis_type: "Visibility_Type",
+    visibility: "Visibility"
 };
 
 const cryptoConfigs = {
-    "algorithm": "sha256",
-    "digest": "hex"
+    algorithm: "sha256",
+    digest: "hex"
 };
 
 const imgExtentions = {
-    "PNG": 1,
-    "GIF": 2,
-    "JPG": 3,
-    "JPEG": 3
+    PNG: 1,
+    GIF: 2,
+    JPG: 3,
+    JPEG: 3
 };
 
 const imgExtentionsIndex = ["", "PNG", "GIF", "JPEG"];
@@ -61,7 +61,6 @@ function addUser(uname, password, caller) {
     connection.query(sql, [username, hashpass], function(err, result) {
         if(err) {
             console.log(err);
-            caller();
         } else {
             caller(result.insertId);
         }
@@ -122,19 +121,14 @@ function checkPassword2(uname, password, caller) {
 }
 
 function getUser(id, caller) {
-    const sql = "SELECT USERNAME, EMAIL, CREATE_DATE FROM " + tables.users + " WHERE USER_ID = ?";
-    connection.query(sql, [id], function(err, results) {
+    const sql = "SELECT * FROM " + tables.users + " WHERE USER_ID = ?";
+    connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
             return;
         }
-        caller({
-            USER_ID: id,
-            USERNAME: results[0].USERNAME,
-            EMAIL: results[0].EMAIL,
-            CREATE_DATE: results[0].CREATE_DATE.toString()
-            // TOOD
-        });
+        result[0].CREATE_DATE = result[0].CREATE_DATE.toString();
+        caller(result[0]);
     });
 }
 
@@ -154,6 +148,7 @@ function addPhoto(userId, ofilename, desc, type, caller) {
 }
 
 function photoExists(id, caller) {
+    // TOOD: delete
     const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.photos + " WHERE PHOTO_ID = ?";
     connection.query(sql, [id], function(err, rows) {
         if(err) {
@@ -161,6 +156,18 @@ function photoExists(id, caller) {
             caller(false);
         } else {
             caller(rows[0].RESULT > 0);
+        }
+    });
+}
+
+function getPhoto(id, caller) {
+    const sql = "SELECT * FROM " + tables.photos + " WHERE PHOTO_ID = ?";
+    connection.query(sql, [id], function(err, result) {
+        if(err) {
+            console.log(err);
+        } else if(result !== undefined && result.length > 0) {
+            result[0].UPLOAD_DATE = result[0].UPLOAD_DATE.toString();
+            caller(result[0]);
         }
     });
 }
@@ -202,14 +209,25 @@ function countComments(id, caller) {
 }
 
 function getComments(id, caller) {
-    const sql = "SELECT COMMENTER, COMMENT_DATE AS RESULT FROM "
-    + tables.comments + " WHERE PHOTO_ID = ? ORDER BY COMMENT_DATE ASC";
+    const sql = "SELECT c.*, u.USER_ID, u.USERNAME, u.P_IMG FROM "
+    + tables.comments + " c LEFT JOIN Users u ON c.COMMENTER = u.USER_ID WHERE c.PHOTO_ID = ?";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
             return;
         }
         caller(results);
+    });
+}
+
+function addComment(authorId, comment, imageId, caller) {
+    const sql = "INSERT INTO " + tables.comments + " (COMMENTER, PHOTO_ID, COMMENT) VALUES (?, ?, ?)";
+    connection.query(sql, [authorId, comment, imageId], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(result.insertId);
+        }
     });
 }
 
@@ -223,8 +241,10 @@ module.exports = {
     getUser: getUser,
     addPhoto: addPhoto,
     photoExists: photoExists,
+    getPhoto: getPhoto,
     countLikes: countLikes,
     getLikes: getLikes,
     countComments: countComments,
-    getComments: getComments
+    getComments: getComments,
+    addComment: addComment
 };
