@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(session({secret: "3.14159265359", saveUninitialized: true, resave: true}));
 
 
-app.get(["/", "/index.html"], function(request, response) {
+app.get(["/", "/index", "/index.html"], function(request, response) {
     response.render("index");
 });
 
@@ -34,17 +34,17 @@ app.post("/login-check", function(request, response) {
     const username = request.body.uname;
     const password = request.body.password;
     if(username === undefined || password === undefined) {
-        response.send("-1");
+        response.send("-1");// Internal Server Error
     } else {
         database.checkUsername(username, function(result) {
             if(!result) {
-                response.send("2");
+                response.send("2"); // Incorrect Username or Password
             } else {
                 database.checkPassword(username, password, function(result2) {
                     if(!result2) {
-                        response.send("1");
+                        response.send("1"); // Incorrect Password
                     } else {
-                        response.send("0");
+                        response.send("0"); // Correct
                     }
                 });
             }
@@ -67,13 +67,13 @@ app.post("/login", function(request, response) {
 app.post("/register-check", function(request, response) {
     const username = request.body.uname;
     if(username === undefined) {
-        response.send("-1");
+        response.send("-1");// Internal Server Error
     } else {
         database.checkUsername(username, function(result) {
             if(result) {
-                response.send("1");
+                response.send("1"); // Username Already Exists
             } else {
-                response.send("0");
+                response.send("0"); // Correct
             }
         });
     }

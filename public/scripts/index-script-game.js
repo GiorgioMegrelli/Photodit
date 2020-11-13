@@ -105,7 +105,7 @@ const NAMED_COLORS = {
     "FAEBD7": ["Antique White"],
     "FAF0E6": ["Linen"],
     "FAFAD2": ["Light Goldenrod Yellow"],
-    "FDF5E6": ["OldLace"],
+    "FDF5E6": ["Old Lace"],
     "FF0000": ["Red"],
     "FF00FF": ["Fuchsia", "Magenta"],
     "FF1493": ["Deep Pink"],
@@ -140,21 +140,22 @@ const NAMED_COLORS = {
 const HEX = Object.keys(NAMED_COLORS);
 
 const COOKIE_NAME = "guess-color-max-score";
+const MAX_AGE = "max-age";
+const HALF_YEAR = 60*60*24*183;
 let rightChoice;
-let userChoice = undefined;
-let interval = undefined;
-let intervalCounter = 5;
 let maxScore;
 let thisScore = 0;
+let interval = undefined;
 
 
 /* Color Choosing */
-function randomIndex(bound) {
-    return Math.floor(Math.random()*bound);
-}
 function getColors() {
+    const randomIndex = function(bound) {
+        return Math.floor(Math.random()*bound);
+    };
     const len = HEX.length;
     let indexes = [];
+
     indexes[0] = randomIndex(len);
     while(true) {
         indexes[1] = randomIndex(len);
@@ -164,7 +165,7 @@ function getColors() {
         indexes[2] = randomIndex(len);
         if(indexes[2] != indexes[0] && indexes[2] != indexes[1]) break;
     }
-    return indexes;
+    return [indexes, randomIndex(indexes.length)];
 }
 
 /* Cookie Worker */
@@ -181,67 +182,71 @@ function getMaxCounter() {
     }
     return 0;
 }
-function setCookies(array) {
-    let newArray = [];
-    array.forEach(function(elem) {
-        newArray.push(elem.join("="));
-    });
-    document.cookie = newArray.join(";");
-}
 function setMaxCounter(val) {
     let cookie = document.cookie.trim();
-    let cookies = cookie.split(";");
-    cookies.forEach(function(elem, i) {
-        cookies[i] = elem.split("=");
-    });
-    for(let i = 0; i<cookies.length; i++) {
-        let pair = cookies[i];
-        if(pair[0].trim() === COOKIE_NAME) {
-            cookies[i][1] = val;
-            setCookies(cookies);
-            return;
+    let cookies = [];
+    let addCookie = true;
+    let addMaxAge = true;
+    if(cookie !== "") {
+        cookie.split(";").forEach(function(elem) {
+            cookies.push(elem.split("="));
+        });
+        for(let i = 0; i<cookies.length; i++) {
+            let cookieKey = cookies[i][0].trim();
+            if(cookieKey === MAX_AGE) {
+                cookies[i][1] = HALF_YEAR.toString();
+                addMaxAge = false;
+            } else if(cookieKey === COOKIE_NAME) {
+                let value = parseInt(cookies[i][1].trim()) + 1;
+                cookies[i][1] = value.toString();
+                addCookie = false;
+                break;
+            } 
         }
     }
-    cookies.push([COOKIE_NAME, val]);
-    setCookies(cookies);
-}
-
-/* Interval Worker */
-function clearIntervalVars() {
-    if(interval !== undefined) {
-        clearInterval(interval);
+    if(addCookie) {
+        cookies.push([COOKIE_NAME, "1"]);
     }
-    document.getElementById("timer-counter").innerHTML = 5;
-    intervalCounter = 5;
-    interval = undefined;
+    if(addMaxAge) {
+        cookies.push([MAX_AGE, HALF_YEAR.toString()]);
+    }
+    let newCookies = [];
+    cookies.forEach(function(elem) {
+        newCookies.push(elem.join("="));
+    });
+    document.cookie = newCookies.join(";");
 }
 
 /* Gaming */
 function userChoose(index) {
-    if(index >= 1 && index <= 3 && userChoice === undefined) {
-        index--;
-        userChoice = index;
-        let buttons = document.getElementsByClassName("game-choice-box");
+    index--;
+    if(index >= 0 && index < 3) {
+        let buttons = byClass("game-choice-box");
         buttons[index].style.backgroundColor = "#FF2800";
         buttons[index].style.color = "#FFFFFF";
         buttons[rightChoice].style.backgroundColor = "#057A5F";
         buttons[rightChoice].style.color = "#FFFFFF";
+        for(let i = 0; i<buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
         if(index == rightChoice) {
             thisScore++;
-            document.getElementById("game-score-cur").innerHTML = thisScore;
+            byId("game-score-cur").innerHTML = thisScore;
             if(thisScore > maxScore) {
                 maxScore = thisScore;
-                document.getElementById("game-score-max").innerHTML = thisScore;
+                byId("game-score-max").innerHTML = thisScore;
                 setMaxCounter(maxScore);
             }
         }
-        userChoice = undefined;
-        document.getElementsByClassName("game-restart")[0].style.display = "block";
-        interval = setInterval(function () {
-            intervalCounter--;
-            document.getElementById("timer-counter").innerHTML = intervalCounter;
-            if(intervalCounter == 0) {
-                clearIntervalVars();
+        byClass("game-restart")[0].style.display = "block";
+        let counter = 5;
+        let timer = byId("timer-counter");
+        interval = setInterval(function() {
+            counter--;
+            timer.innerHTML = counter;
+            if(counter == 0) {
+                clearInterval(interval);
+                interval = undefined;
                 gaming();
             }
         }, 1000);
@@ -249,33 +254,50 @@ function userChoose(index) {
 }
 
 function showData(indexes, choice) {
-    let buttons = document.getElementsByClassName("game-choice-box");
+    let buttons = byClass("game-choice-box");
     for(let i = 0; i<buttons.length; i++) {
         let names = NAMED_COLORS[HEX[indexes[i]]];
-        buttons[i].innerHTML = names[0];
-        if(names.length != 1) {
-            buttons[i].innerHTML += ("/" + names[1]);
+        if(names.length == 1) {
+            buttons[i].innerHTML = names[0];
+        } else {
+            buttons[i].innerHTML = names.join(" / ");
         }
         buttons[i].style.backgroundColor = "#ECECEC";
         buttons[i].style.color = "#000000";
+        buttons[i].disabled = false;
+        byClass("game-restart")[0].style.display = "none";
     }
-    document.getElementById("game-correct-back").style.backgroundColor = "#" + HEX[indexes[choice]];
-    rightChoice = choice;
-    userChoice = undefined;
+    byId("game-correct-back").style.backgroundColor = "#" + HEX[indexes[choice]];
+    byId("timer-counter").innerHTML = 5;
 }
 
 function gaming() {
-    if(userChoice === undefined) {
-        clearIntervalVars();
-        let indexes, choice;
-        indexes = getColors();
-        choice = randomIndex(indexes.length);
-        showData(indexes, choice);
-        document.getElementsByClassName("game-restart")[0].style.display = "none";
-    }
+    let result, indexes, choice;
+    result = getColors();
+    indexes = result[0];
+    choice = result[1];
+    rightChoice = choice;
+    showData(indexes, choice);
 }
+
+function restart() {
+    if(interval !== undefined) {
+        clearInterval(interval);
+        interval = undefined;
+    }
+    gaming();
+}
+
+function byId(id) {
+    return document.getElementById(id);
+}
+function byClass(cls) {
+    return document.getElementsByClassName(cls);
+}
+
 
 window.onload = function() {
     maxScore = getMaxCounter();
+    byId("game-score-max").innerHTML = maxScore;
     gaming();
 }

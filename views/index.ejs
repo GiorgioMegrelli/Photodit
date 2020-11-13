@@ -1,39 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Photodit</title>
+    <title>Photodit | Space for your images</title>
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="../public/styles/reset-css.css" rel="stylesheet">
+    <link href="../public/fonts/fonts.css" rel="stylesheet">
     <link href="../public/styles/index-css.css" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="header">
-        <p>Photodit</p>
+    <div class="reg-log-space">
+        <p class="logo-text">Photodit</p>
+        <div class="log-space">
+            <p class="space-headers">Log In</p>
+            <form action="/login" id="login-form" method="post">
+                <div class="user-data-subcontainer">
+                    <input type="text" name="uname" id="log-uname" class="user-data-inputs" required>
+                    <label for="log-uname" class="user-data-label">Username</label>
+                </div>
+                <div class="user-data-subcontainer">
+                    <input type="password" name="password" id="log-password" class="user-data-inputs" required>
+                    <label for="log-password" class="user-data-label">Password</label>
+                </div>
+            </form>
+            <div class="rl-input-button-div"></div>
+            <p class="space-bottom-p">
+                <input type="button" class="rl-input-button" value="Log In" onclick="login()">
+                <span class="space-bottom-p-span1">or</span>
+                <span class="space-bottom-p-span2" onclick="showSpace(true)">Sign Up</span>
+            </p>
+        </div>
+        <div class="reg-space">
+            <p class="space-headers">Sign Up</p>
+            <form action="/register" id="register-form" method="post">
+                <div class="user-data-subcontainer">
+                    <input type="text" name="uname" id="reg-uname" class="user-data-inputs" required>
+                    <label for="reg-uname" class="user-data-label">Username</label>
+                </div>
+                <div class="user-data-subcontainer">
+                    <input type="password" name="password" id="reg-password" class="user-data-inputs" required>
+                    <label for="reg-password" class="user-data-label">Password</label>
+                </div>
+                <div class="user-data-subcontainer">
+                    <input type="password" id="reg-password-rep" class="user-data-inputs" required>
+                    <label for="reg-password-rep" class="user-data-label">Repeat Password</label>
+                </div>
+            </form>
+            <div class="rl-input-button-div"></div>
+            <p class="space-bottom-p">
+                <input type="button" class="rl-input-button" value="Sign Up" onclick="register()">
+                <span class="space-bottom-p-span1">or</span>
+                <span class="space-bottom-p-span2" onclick="showSpace(false)">Log In</span>
+            </p>
+        </div>
+        <div class="output-error-space">
+            <p id="output-error"></p>
+        </div>
     </div>
 
-    <p style="font-size: 20px;">Log In</p>
-    <form action="/login" id="login-form" method="post">
-        <input type="text" name="uname" id="log-uname" placeholder="Username" required><br>
-        <input type="password" name="password" id="log-password" placeholder="Password" required><br>
-        <input type="button" value="Log In" onclick="login()">
-    </form>
-
-    <br>
-
-    <p style="font-size: 20px;">Register</p>
-    <form action="/register" id="register-form" method="post">
-        <input type="text" name="uname" id="reg-uname" placeholder="Username" required><br>
-        <input type="password" name="password" id="reg-password" minlength="6" placeholder="Password" required><br>
-        <input type="password" id="reg-password-rep" minlength="6" placeholder="Repeat Password" required><br>
-        <input type="button" value="Register" onclick="register()">
-    </form>
+    <div class="game-space">
+        <p class="game-logo-text">ColourGame</p>
+        <p class="game-logo-text2">Guess the Colour</p>
+        <p class="game-scores">
+            Max Score: <span id="game-score-max">0</span>, Current Score: <span id="game-score-cur">0</span>
+        </p>
+        <div id="game-correct-back"></div>
+        <div id="game-choices">
+            <button class="game-choice-box" onclick="userChoose(1)"></button>
+            <button class="game-choice-box" onclick="userChoose(2)"></button>
+            <button class="game-choice-box" onclick="userChoose(3)"></button>
+        </div>
+        <p class="game-restart">
+            <span class="game-restart-span" onclick="restart()">Restart</span> or wait <span id="timer-counter">5</span>...
+        </p>
+    </div>
 
     <script src="../public/scripts/index-script.js"></script>
+    <script src="../public/scripts/index-script-game.js"></script>
 </body>
 </html>
