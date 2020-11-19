@@ -31,7 +31,7 @@ const imgExtentions = {
     JPEG: 3
 };
 
-const imgExtentionsIndex = ["", "PNG", "GIF", "JPEG"];
+const imgExtentionsIndex = ["", "PNG", "GIF", "JPG"];
 
 const visibilities = {
     "PUBLIC": 1,
@@ -55,10 +55,11 @@ function hash(str) {
 }
 
 function addUser(uname, password, caller) {
-    const sql = "INSERT INTO " + tables.users + " (USERNAME, PASSWORD) VALUES (?, ?)";
-    const username = uname.trim().toLowerCase();
+    const sql = "INSERT INTO " + tables.users + " (USERNAME, USERNAME_UPPER, PASSWORD) VALUES (?, ?, ?)";
+    const username = uname.trim();
+    const usernameUpper = username.toUpperCase();
     const hashpass = hash(password.trim());
-    connection.query(sql, [username, hashpass], function(err, result) {
+    connection.query(sql, [username, usernameUpper, hashpass], function(err, result) {
         if(err) {
             console.log(err);
         } else {
@@ -68,8 +69,8 @@ function addUser(uname, password, caller) {
 }
 
 function getIdByUsername(uname, caller) {
-    const sql = "SELECT USER_ID FROM " + tables.users + " WHERE USERNAME = ?";
-    const username = uname.trim().toLowerCase();
+    const sql = "SELECT USER_ID FROM " + tables.users + " WHERE USERNAME_UPPER = ?";
+    const username = uname.trim().toUpperCase();
     connection.query(sql, [username], function(err, rows) {
         if(err) {
             console.log(err);
@@ -83,14 +84,19 @@ function getIdByUsername(uname, caller) {
 
 function checkUsername(uname, caller) {
     getIdByUsername(uname, function(result) {
+        if(result === undefined) {
+            result = -1;
+        }
         caller(result > 0);
     });
 }
 
+/*
+    This function must be called only after checkUsername
+*/
 function checkPassword(uname, password, caller) {
-    /* This function should be called after checkUsername */
-    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.users + " WHERE USERNAME = ? AND PASSWORD = ?";
-    const username = uname.trim().toLowerCase();
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.users + " WHERE USERNAME_UPPER = ? AND PASSWORD = ?";
+    const username = uname.trim().toUpperCase();
     const hashpass = hash(password.trim());
     connection.query(sql, [username, hashpass], function(err, rows) {
         if(err) {
@@ -99,24 +105,6 @@ function checkPassword(uname, password, caller) {
             return;
         }
         caller(rows[0].RESULT > 0);
-    });
-}
-
-function checkPassword2(uname, password, caller) {
-    const sql = "SELECT PASSWORD FROM " + tables.users + " WHERE USERNAME = ?";
-    const username = uname.trim().toLowerCase();
-    const hashpass = hash(password.trim());
-    connection.query(sql, [username], function(err, results) {
-        if(err) {
-            console.log(err);
-            caller(false);
-            return;
-        }
-        if(rows.length == 0) {
-            caller(false);
-        } else {
-            caller(results[0].PASSWORD === hashpass);
-        }
     });
 }
 
@@ -133,8 +121,7 @@ function getUser(id, caller) {
 }
 
 function addPhoto(userId, ofilename, desc, type, caller) {
-    const sql = "INSERT INTO " + tables.photos
-    + " (AUTHOR_ID, FMT_ID, DESCRIPTION, TYPE_ID) VALUES (?, ?, ?, ?)";
+    const sql = "INSERT INTO " + tables.photos + " (AUTHOR_ID, FMT_ID, DESCRIPTION, TYPE_ID) VALUES (?, ?, ?, ?)";
 
     const extention = ofilename.split(".")[1].toUpperCase();
     connection.query(sql, [userId, imgExtentions[extention], desc, type], function(err, result) {
@@ -147,21 +134,10 @@ function addPhoto(userId, ofilename, desc, type, caller) {
     });
 }
 
-function photoExists(id, caller) {
-    // TOOD: delete
-    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.photos + " WHERE PHOTO_ID = ?";
-    connection.query(sql, [id], function(err, rows) {
-        if(err) {
-            console.log(err);
-            caller(false);
-        } else {
-            caller(rows[0].RESULT > 0);
-        }
-    });
-}
-
 function getPhoto(id, caller) {
-    const sql = "SELECT * FROM " + tables.photos + " WHERE PHOTO_ID = ?";
+    const sql = "SELECT p.*, u.USERNAME FROM "
+    + tables.photos + " p LEFT JOIN " + tables.users
+    + " u ON p.AUTHOR_ID = u.USER_ID WHERE PHOTO_ID = ?";
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
@@ -209,8 +185,9 @@ function countComments(id, caller) {
 }
 
 function getComments(id, caller) {
-    const sql = "SELECT c.*, u.USER_ID, u.USERNAME, u.P_IMG FROM "
-    + tables.comments + " c LEFT JOIN Users u ON c.COMMENTER = u.USER_ID WHERE c.PHOTO_ID = ?";
+    const sql = "SELECT c.*, u.USER_ID, u.USERNAME, u.P_IMG, u.CREATE_DATE FROM "
+    + tables.comments + " c LEFT JOIN " + tables.users
+    + " u ON c.COMMENTER = u.USER_ID WHERE c.PHOTO_ID = ? ORDER BY c.COMMENT_DATE DESC";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -220,15 +197,32 @@ function getComments(id, caller) {
     });
 }
 
-function addComment(authorId, comment, imageId, caller) {
+function addComment(authorId, imageId, comment, caller) {
     const sql = "INSERT INTO " + tables.comments + " (COMMENTER, PHOTO_ID, COMMENT) VALUES (?, ?, ?)";
-    connection.query(sql, [authorId, comment, imageId], function(err, results) {
+    connection.query(sql, [authorId, imageId, comment], function(err, result) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(result.insertId);
         }
     });
+}
+
+function deleteComment(commentId, caller) {
+    const sql = "DELETE FROM " + tables.comments + " WHERE COMMENT_ID = ?";
+    connection.query(sql, [commentId], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(undefined);
+        } else {
+            caller(result.insertId);
+        }
+    });
+}
+
+function isFollower(follower, followed, caller) {
+
 }
 
 
@@ -237,14 +231,14 @@ module.exports = {
     getIdByUsername: getIdByUsername,
     checkUsername: checkUsername,
     checkPassword: checkPassword,
-    checkPassword2: checkPassword2,
     getUser: getUser,
     addPhoto: addPhoto,
-    photoExists: photoExists,
     getPhoto: getPhoto,
     countLikes: countLikes,
     getLikes: getLikes,
     countComments: countComments,
     getComments: getComments,
-    addComment: addComment
+    addComment: addComment,
+    deleteComment: deleteComment,
+    isFollower: isFollower
 };

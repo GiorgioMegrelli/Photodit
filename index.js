@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
@@ -9,6 +10,8 @@ const database = require("./database/database");
 
 const PORT_ID = 8089;
 const destination = "upload/";
+
+const imgExtentionsIndex = ["", "PNG", "GIF", "JPG"];
 
 
 const app = express();
@@ -98,7 +101,9 @@ app.get("/profile", function(request, response) {
         response.redirect("/");
     } else {
         //response.render("profile", {});
-        response.sendFile(__dirname + "/views/profile.html");
+        //response.sendFile(__dirname + "/views/profile.html");
+        // TODO: delete
+        response.redirect("/image/1");
     }
 });
 
@@ -127,16 +132,26 @@ app.get("/user/:userId", function(request, response) {
 });
 
 app.get("/image/:imageId", function(request, response) {
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+        return;
+    }
     const imageId = request.params.imageId;
-    const reTypes = {
+    const rtypes = {
         RETURN_ERR: -1,
         RETURN_FALSE: 0,
         RETURN_TRUE: 1
     };
     let returnVal = {};
+    returnVal.title = "";
+    returnVal.msg = "";
     if(isNaN(imageId)) {
-        returnVal["reType"] = RETURN_ERR;
-        returnVal["msg"] = "Invalid URL of Image";
+        returnVal.rtype = rtypes.RETURN_ERR;
+        returnVal.msg = "Invalid URL of Image";
+        returnVal.title = returnVal.msg;
+        returnVal.vars = rtypes;
+        response.render("image", returnVal);
     } else {
         const id = parseInt(imageId);
         const visibilities = {
@@ -144,36 +159,57 @@ app.get("/image/:imageId", function(request, response) {
             PROTECTED: 2,
             PRIVATE: 3
         };
+        returnVal.vars = Object.assign(rtypes, visibilities);
         database.getPhoto(id, function(result) {
-            // TODO
             if(result === undefined) {
-                returnVal["reType"] = RETURN_FALSE;
-                returnVal["msg"] = "Image with this ID: " + id + " - doesn't Exist";
+                returnVal.rtype = rtypes.RETURN_FALSE;
+                returnVal.msg = "Image with this ID: " + id + " - doesn't Exist";
+                returnVal.title = returnVal.msg;
             } else {
-                /*const vType = parseInt(result2.TYPE_ID);
-                if(vType == visibilities.PRIVATE) {
-                    returnVal["msg"] = "Only Owner of this Image can see it!";
+                const typeId = result.typeId;
+                returnVal.rtype = rtypes.RETURN_TRUE;
+                console.log(result);
+                if(result.AUTHOR_ID == currentUser) {
+                    returnVal.title = result.DESCRIPTION;
+                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
+                } else if(typeId == visibilities.PRIVATE) {
+                    returnVal.rtype = rtypes.RETURN_FALSE;
+                    returnVal.msg = "Only Author of the Image can view it";
+                    returnVal.title = returnVal.msg;
                 } else {
-                    returnVal["img"] = {};
-                    returnVal["img"].push(result);
+                    returnVal.title = result.DESCRIPTION;
+                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
                 }
-                returnVal["reType"] = RETURN_TRUE;*/
             }
-            returnVal["vars"] = Object.assign(reTypes, visibilities);
-            //response.render("image", returnVal);
-            request.session.imageId = imageId;
-            response.sendFile(__dirname + "/views/image.html");
-            //response.render("image");
-            // TODO: set img id to session
+            response.render("image", returnVal);
         });
     }
 });
 
+function createImg(dateStr) {
+    let date = Date.parse(dateStr);
+    let seconds = Math.floor(date/1000);
+    let rgbs = [];
+    for(let i = 0; i<3; i++) {
+        rgbs.push(seconds%220 + 36);
+        seconds = Math.floor(seconds/256);
+    }
+    return ("rgb(" + rgbs[0] + ", " + rgbs[1] + ", " + rgbs[2] + ")");
+}
+
 app.post("/loadComments", function(request, response) {
-    const imageId = request.session.imageId;
+    const imageId = request.body.imageId;
+    const currentUser = request.session.thisUserId;
     database.getComments(imageId, function(results) {
         for(let i = 0; i<results.length; i++) {
             results[i].COMMENT_DATE = results[i].COMMENT_DATE.toString();
+            results[i].IS_AUTHOR = (results[i].USER_ID == currentUser);
+            results[i].ENCRYPT_ID = encrypt(results[i].COMMENT_ID.toString());
+            if(results[i].P_IMG == null) {
+                results[i].BACK_COLOR = createImg(results[i].CREATE_DATE.toString());
+            }
+            delete results[i].CREATE_DATE;
+            delete results[i].COMMENT_ID;
         }
         response.send(JSON.stringify(results));
     });
@@ -182,11 +218,56 @@ app.post("/loadComments", function(request, response) {
 app.post("/addComment", function(request, response) {
     const currentUser = request.session.thisUserId;
     const comment = request.body.comment;
-    const imageId = request.session.thisImageId;
-    database.addComment(currentUser, comment, imageId, function(result) {
+    const imageId = request.body.imageId;
+    database.addComment(currentUser, imageId, comment, function(result) {
         response.send({result: (result !== undefined)});
     });
 });
+
+app.post("/deleteComment", function(request, response) {
+    const encyptedId = request.body.encyptedId;
+    let id = parseInt(decrypt(encyptedId).trim());
+    database.deleteComment(id, function(result) {
+        response.send({result: (result !== undefined)});
+    });
+});
+
+
+/*
+    My "Encrypting" and "Decrypting"
+*/
+function randomString() {
+    let length = 5 + Math.floor(Math.random()*4);
+    let str = "";
+    for(let i = 0; i<length; i++) {
+        str += (1 + Math.floor(Math.random()*9)).toString();
+    }
+    return str;
+}
+
+function encrypt(text){
+    let left = randomString();
+    let right = randomString();
+    return [left, text, right].join("0");
+}
+
+function decrypt(text){
+    const length = text.length;
+    let leftIndex, rightIndex;
+    for(let i = 0; i<length; i++) {
+        if(text.charAt(i) === "0") {
+            leftIndex = i;
+            break;
+        }
+    }
+    for(let i = length - 1; i>=0; i--) {
+        if(text.charAt(i) === "0") {
+            rightIndex = i;
+            break;
+        }
+    }
+    return text.substring(leftIndex + 1, rightIndex);
+}
 
 
 app.listen(PORT_ID, function() {

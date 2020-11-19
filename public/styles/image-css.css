@@ -23,12 +23,29 @@ header p {
             user-select: none;
 }
 
+.result-output {
+    height: 260px;
+    top: 80px;
+}
+
+.result-output p {
+    width: 100%;
+    text-align: center;
+    font-size: 42px;
+    font-family: 'Roboto', sans-serif;
+    color: #A9A9A9;
+    padding: 98px 0;
+}
+
 .content {
+    height: 300px;
+    top: 60px;
+}
+
+.result-output, .content {
     position: relative;
     margin: 0 auto;
-    top: 60px;
     width: 1000px;
-    height: 200px;
     background-color: white;
 }
 
@@ -40,6 +57,10 @@ header p {
     background-color: white;
     border-radius: 4px;
     overflow: hidden;
+}
+
+.result-output, .result-output, .comments {
+    box-shadow: 7px 6px 4px #D0D0D0;
 }
 
 .comment-inputs {
@@ -155,4 +176,94 @@ header p {
 
 .comments-list {
     background-color: white;
+}
+
+.not-found-coms {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 19px;
+    font-family: 'Roboto', sans-serif;
+    color: #BABABA;
+}
+
+.comment-box {
+    position: relative;
+    width: 90%;
+    margin-top: 10px;
+    margin-left: 5%;
+    min-height: 90px;
+    border: 1px solid #A9A9A9;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.comment-box-user {
+    width: 100%;
+    height: 52px;
+}
+
+.comment-box-data {
+    display: grid;
+    grid-template-columns: 110px auto;
+}
+
+.comment-box-img {
+    margin: 5px auto;
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.comment-box-img-p {
+    text-align: center;
+    color: white;
+    font-size: 36px;
+    padding: 22px 0;
+}
+
+.settings {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+}
+
+.settings p {
+    width: 100%;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.settings p i {
+    font-size: 14px;
+}
+
+.comment-box-user a {
+    float: left;
+    margin-top: 14px;
+    margin-left: 18px;
+    font-size: 22px;
+    color: rgba(5, 122, 95, 1);
+    text-decoration: none;
+}
+
+.comment-box-user span {
+    float: right;
+    font-size: 17px;
+    margin-top: 17px;
+    margin-right: 18px;
+    color: #C0C0C0;
+}
+
+.comment-box-text {
+    width: 95%;
+    min-height: 90px;
+    max-height: 160px;
+    margin-bottom: 10px;
+    overflow: auto;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    background: whitesmoke;
+    padding: 10px 10px;
 }
