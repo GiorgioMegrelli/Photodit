@@ -33,8 +33,8 @@
 ```
 npm install
 ```
-#### Create Tables in mysql Database with "script.sql" in "database" directory
-#### Update connection arguments in "script.sql" to your mysql server configuration
+##### Update connection arguments in "script.sql" to your mysql server configuration
+##### Create Tables in mysql Database with "script.sql" in "database" directory
 #### Start Project:
 ```
 npm start

@@ -13,6 +13,8 @@ const destination = "upload/";
 
 const imgExtentionsIndex = ["", "PNG", "GIF", "JPG"];
 
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 
 const app = express();
 const upload = multer({
@@ -168,10 +170,15 @@ app.get("/image/:imageId", function(request, response) {
             } else {
                 const typeId = result.typeId;
                 returnVal.rtype = rtypes.RETURN_TRUE;
+                returnVal.isAuthor = result.AUTHOR_ID == currentUser;
                 console.log(result);
-                if(result.AUTHOR_ID == currentUser) {
+                result.UPLOAD_DATE = formatDate(result.UPLOAD_DATE);
+                if(returnVal.isAuthor) {
                     returnVal.title = result.DESCRIPTION;
                     returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
+                    returnVal.userHref = "/profile";
+                    returnVal.username = result.USERNAME;
+                    returnVal.uploaddate = result.UPLOAD_DATE;
                 } else if(typeId == visibilities.PRIVATE) {
                     returnVal.rtype = rtypes.RETURN_FALSE;
                     returnVal.msg = "Only Author of the Image can view it";
@@ -179,6 +186,9 @@ app.get("/image/:imageId", function(request, response) {
                 } else {
                     returnVal.title = result.DESCRIPTION;
                     returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
+                    returnVal.userHref = "/user/" + result.AUTHOR_ID;
+                    returnVal.username = result.USERNAME;
+                    returnVal.uploaddate = result.UPLOAD_DATE;
                 }
             }
             response.render("image", returnVal);
@@ -195,6 +205,17 @@ function createImg(dateStr) {
         seconds = Math.floor(seconds/256);
     }
     return ("rgb(" + rgbs[0] + ", " + rgbs[1] + ", " + rgbs[2] + ")");
+}
+
+function formatDate(time) {
+    time = new Date(Date.parse(time));
+    let str = time.getDate() + " ";
+    str += months[time.getMonth()] + " ";
+    str += time.getFullYear() + "  ";
+    str += time.getHours() + ":";
+    str += time.getMinutes() + ":";
+    str += time.getSeconds();
+    return str;
 }
 
 app.post("/loadComments", function(request, response) {
@@ -230,6 +251,30 @@ app.post("/deleteComment", function(request, response) {
     database.deleteComment(id, function(result) {
         response.send({result: (result !== undefined)});
     });
+});
+
+app.post("/countLikes", function(request, response) {
+    const imageId = request.body.imageId;
+    const currentUser = request.session.thisUserId;
+    database.countLikes(imageId, function(count) {
+        database.hasLiked(imageId, currentUser, function(liked) {
+            response.send({
+                count: count,
+                hasLiked: liked
+            });
+        });
+    });
+});
+
+app.post("/getLikes", function(request, response) {
+    const imageId = request.body.imageId;
+    database.getLikes(imageId, function(results) {
+        console.log(results);
+    });
+});
+
+app.post("/like", function(request, response) {
+    const imageId = request.body.imageId;
 });
 
 

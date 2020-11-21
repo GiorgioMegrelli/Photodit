@@ -160,9 +160,23 @@ function countLikes(id, caller) {
     });
 }
 
+function hasLiked(id, userId, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM "
+    + tables.likes + " WHERE PHOTO_ID = ? AND LIKER = ?";
+    connection.query(sql, [id, userId], function(err, rows) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        caller(rows[0].RESULT > 0);
+    });
+}
+
 function getLikes(id, caller) {
-    const sql = "SELECT LIKER, LIKE_DATE AS RESULT FROM "
-    + tables.likes + " WHERE PHOTO_ID = ? ORDER BY LIKE_DATE DESC";
+    const sql = "SELECT u.USER_ID, u.USERNAME, l.* FROM "
+    + tables.likes + " l LEFT JOIN " + tables.users
+    + " u ON l.LIKER = u.USER_ID WHERE l.PHOTO_ID = ?";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -235,6 +249,7 @@ module.exports = {
     addPhoto: addPhoto,
     getPhoto: getPhoto,
     countLikes: countLikes,
+    hasLiked: hasLiked,
     getLikes: getLikes,
     countComments: countComments,
     getComments: getComments,

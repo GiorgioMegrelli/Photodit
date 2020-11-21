@@ -1,6 +1,20 @@
 window.onload = function() {
     loadComments();
+    countLikes();
+    preventImgEvents();
 };
+
+function preventImgEvents() {
+    let imgs = document.getElementsByTagName("img");
+    let events = ["onclick", "oncontextmenu", "ondblclick", "onmousedown", "onmouseup"];
+    for(let i = 0; i<imgs.length; i++) {
+        events.forEach(function(event) {
+            imgs[i][event] = function() {
+                return false;
+            };
+        });
+    }
+}
 
 function loadComments() {
     let loader = document.getElementsByClassName("comments-loader")[0];
@@ -88,12 +102,16 @@ function createCommentBox(rowData) {
     // comment-box-user
     let boxUser = createElement("p", "comment-box-user");
     let userName = createElement("a");
-    userName.href = "/user/" + rowData.COMMENTER;
+    if(rowData.IS_AUTHOR) {
+        userName.href = "/profile";
+    } else {
+        userName.href = "/user/" + rowData.COMMENTER;
+    }
     userName.innerHTML = rowData.USERNAME;
     boxUser.appendChild(userName);
     let timeLeft = createElement("span");
     let time = Date.parse(rowData.COMMENT_DATE);
-    timeLeft.innerHTML = formatDate(time);
+    timeLeft.innerHTML = formatDateComment(time);
     boxUser.appendChild(timeLeft);
     mainBox.appendChild(boxUser);
     // comment-box-data
@@ -137,6 +155,53 @@ function createCommentBox(rowData) {
     return mainBox;
 }
 
+function getLikes() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        let list = document.getElementById("likes-list");
+        list.innerHTML = "";
+        if(this.readyState == 4 && this.status == 200) {
+            let result = JSON.parse(this.responseText);
+        }
+    };
+    xhttp.open("post", "/getLikes", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("imageId=" + getUrlId().toString());
+}
+
+const buttonIconTypes = ["fa fa-thumbs-o-up", "fa fa-thumbs-up"];
+
+function countLikes() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            let result = JSON.parse(this.responseText);
+            document.getElementById("like-number").innerHTML = result.count;
+            let buttonValue = "<i class=\"";
+            if(result.hasLiked) {
+                buttonValue += buttonIconTypes[1] + "\"></i> Unlike";
+            } else {
+                buttonValue += buttonIconTypes[0] + "\"></i> Like";
+            }
+            document.getElementById("like-button").innerHTML = buttonValue;
+        }
+    };
+    xhttp.open("post", "/countLikes", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("imageId=" + getUrlId().toString());
+}
+
+function getLikes() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+        }
+    };
+    xhttp.open("post", "/getLikes", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("imageId=" + getUrlId().toString());
+}
+
 function createElement(tag, className) {
     let node = document.createElement(tag);
     if(className !== undefined) {
@@ -160,7 +225,7 @@ const HOUR = 60*MINUTE;
 const DAY = 24*HOUR;
 const WEEK = 7*DAY;
 
-function formatDate(date) {
+function formatDateComment(date) {
     let diff = Math.floor(Math.abs(Date.now() - date)/1000);
     let result;
     if(diff == 0) {
@@ -182,6 +247,15 @@ function formatDate(date) {
         result += ((result == 1)? " week": " weeks");
     }
     return result + " ago";
+}
+
+function closePupup1() {
+    document.getElementsByClassName("overflow-content")[0].style.display = "none";
+}
+
+function showLikes() {
+    document.getElementsByClassName("overflow-content")[0].style.display = "block";
+    getLikes();
 }
 
 
