@@ -17,7 +17,9 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
-html, body {width: 100%;}
+html, body {
+	width: 100%;
+}
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
@@ -39,4 +41,17 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+
+/* Styling scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    -webkit-border-radius: 1px;
+}
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 1px;
+    border-radius: 3px;
+    background: rgba(5, 122, 95, 0.8);
 }

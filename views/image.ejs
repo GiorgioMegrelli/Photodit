@@ -23,21 +23,21 @@
     <div class="center">
         <div class="overflow-content">
             <p><button onclick="closePupup1()">Close</button></p>
-            <div id="likes-list"></div>
+            <div id="likes-list">
+                <p class="likes-list-loading">Comments Loading</p>
+            </div>
         </div>
 
         <div class="content">
-            <p class="content-desc">
-                randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtextrandomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtext randomtextrandomtext randomtext randomtext randomtext randomtext randomtext randomtextrandomtext randomtext randomtext randomtext randomtext
-            </p>
+            <p class="content-desc"></p>
             <img src="<%= src %>" alt="<%= title %>" class="image">
             <div class="image-info">
                 <p class="content-username">
                     <span>By </span><a href="<%= userHref %>" class="photo-author"><%= username %></a>
                 </p>
                 <p class="content-like">
-                    <% if(true) { %>
-                        <button id="like-button">Like</button>
+                    <% if(!isAuthor) { %>
+                        <button onclick="sendLike()" id="like-button">Like</button>
                     <% } %>
                     <span onclick="showLikes()" class="content-like-list"><output id="like-number">0</output> Like(s)</span>
                 </p>

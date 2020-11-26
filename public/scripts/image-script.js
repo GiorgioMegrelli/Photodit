@@ -155,6 +155,18 @@ function createCommentBox(rowData) {
     return mainBox;
 }
 
+function sendLike() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            countLikes();
+        }
+    };
+    xhttp.open("post", "/like", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("imageId=" + getUrlId().toString());
+}
+
 function getLikes() {
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -162,6 +174,15 @@ function getLikes() {
         list.innerHTML = "";
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
+            let likeList = document.getElementById("likes-list");
+            likeList.innerHTML = "";
+            for(let i = 0; i<result.length; i++) {
+                let like = document.createElement("a");
+                like.href = "/user/" + result[i].USER_ID;
+                like.innerHTML = result[i].USERNAME;
+                like.className = "liker-list-item";
+                likeList.append(like);
+            }
         }
     };
     xhttp.open("post", "/getLikes", true);
@@ -178,26 +199,22 @@ function countLikes() {
             let result = JSON.parse(this.responseText);
             document.getElementById("like-number").innerHTML = result.count;
             let buttonValue = "<i class=\"";
-            if(result.hasLiked) {
-                buttonValue += buttonIconTypes[1] + "\"></i> Unlike";
-            } else {
-                buttonValue += buttonIconTypes[0] + "\"></i> Like";
+            let likeButton = document.getElementById("like-button");
+            if(likeButton !== undefined) {
+                if(result.hasLiked) {
+                    buttonValue += buttonIconTypes[1] + "\"></i> Unlike";
+                    likeButton.style.backgroundColor = "#E6E6E6";
+                    likeButton.style.color = "black";
+                } else {
+                    buttonValue += buttonIconTypes[0] + "\"></i> Like";
+                    likeButton.style.backgroundColor = "rgba(5, 122, 95, 1)";
+                    likeButton.style.color = "white";
+                }
+                likeButton.innerHTML = buttonValue;
             }
-            document.getElementById("like-button").innerHTML = buttonValue;
         }
     };
     xhttp.open("post", "/countLikes", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhttp.send("imageId=" + getUrlId().toString());
-}
-
-function getLikes() {
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if(this.readyState == 4 && this.status == 200) {
-        }
-    };
-    xhttp.open("post", "/getLikes", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("imageId=" + getUrlId().toString());
 }

@@ -130,6 +130,9 @@ app.post("/upload", upload.single("imgpath"), function(request, response) {
 
 app.get("/user/:userId", function(request, response) {
     const userId = request.params.userId;
+    if(userId == request.session.thisUserId) {
+        response.redirect("/profile");
+    }
     console.log(userId);
 });
 
@@ -170,8 +173,7 @@ app.get("/image/:imageId", function(request, response) {
             } else {
                 const typeId = result.typeId;
                 returnVal.rtype = rtypes.RETURN_TRUE;
-                returnVal.isAuthor = result.AUTHOR_ID == currentUser;
-                console.log(result);
+                returnVal.isAuthor = (result.AUTHOR_ID == currentUser);
                 result.UPLOAD_DATE = formatDate(result.UPLOAD_DATE);
                 if(returnVal.isAuthor) {
                     returnVal.title = result.DESCRIPTION;
@@ -269,12 +271,24 @@ app.post("/countLikes", function(request, response) {
 app.post("/getLikes", function(request, response) {
     const imageId = request.body.imageId;
     database.getLikes(imageId, function(results) {
-        console.log(results);
+        response.send(results);
     });
 });
 
 app.post("/like", function(request, response) {
     const imageId = request.body.imageId;
+    const currentUser = request.session.thisUserId;
+    database.hasLiked(imageId, currentUser, function(liked) {
+        if(liked) {
+            database.sendUnlike(imageId, currentUser, function(result) {
+                response.send((result)? "-1": "0");
+            });
+        } else {
+            database.sendLike(imageId, currentUser, function(result) {
+                response.send((result)? "1": "0");
+            });
+        }
+    });
 });
 
 

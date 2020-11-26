@@ -121,7 +121,7 @@ header a {
     display: block;
     margin: 40px auto;
     max-width: 1000px;
-    max-height: 1100px;
+    max-height: 1400px;
     margin-bottom: 20px;
 }
 
@@ -351,8 +351,8 @@ header a {
 }
 
 .overflow-content {
-    width: 500px;
-    height: 550px;
+    width: 400px;
+    height: 500px;
     background-color: white;
     border: 1px solid;
     border-radius: 2px;
@@ -360,7 +360,7 @@ header a {
     overflow: auto;
     z-index: 100000;
     top: 100px;
-    left: calc(50% - 250px);
+    left: calc(50% - 200px);
     display: none;
 }
 
@@ -368,12 +368,52 @@ header a {
     border: none;
     cursor: pointer;
     font-size: 17px;
-    padding: 3px 4px;
+    padding: 5px 7px;
+}
+.overflow-content button:hover {
+    color: white;
+    background-color: rgba(5, 122, 95, 1);
+}
+
+#like-button {
+    position: relative;
+    top: -4px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 3px;
 }
 
 #likes-list {
     width: 100%;
     margin-top: 2%;
-    height: 93%;
+    height: 90%;
     overflow: auto;
+}
+
+.likes-list-loading {
+    display: block;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    padding: auto 10px;
+}
+
+.liker-list-item {
+    margin: 2px auto;
+    display: block;
+    text-decoration: none;
+    color: black;
+    width: 90%;
+    background-color: whitesmoke;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    padding: 9px 10px;
+    border-radius: 2px;
+}
+
+.liker-list-item:hover {
+    background-color: #E6E6E6;
 }

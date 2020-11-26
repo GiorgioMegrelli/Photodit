@@ -173,10 +173,34 @@ function hasLiked(id, userId, caller) {
     });
 }
 
+function sendLike(id, userId, caller) {
+    const sql = "INSERT INTO " + tables.likes + " (LIKER, PHOTO_ID) VALUES (?, ?)";
+    connection.query(sql, [userId, id], function(err, rows) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        caller(true);
+    });
+}
+
+function sendUnlike(id, userId, caller) {
+    const sql = "DELETE FROM " + tables.likes + " WHERE LIKER = ? AND PHOTO_ID = ?";
+    connection.query(sql, [userId, id], function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        caller(true);
+    });
+}
+
 function getLikes(id, caller) {
     const sql = "SELECT u.USER_ID, u.USERNAME, l.* FROM "
     + tables.likes + " l LEFT JOIN " + tables.users
-    + " u ON l.LIKER = u.USER_ID WHERE l.PHOTO_ID = ?";
+    + " u ON l.LIKER = u.USER_ID WHERE l.PHOTO_ID = ? ORDER BY l.LIKE_DATE DESC";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -250,6 +274,8 @@ module.exports = {
     getPhoto: getPhoto,
     countLikes: countLikes,
     hasLiked: hasLiked,
+    sendLike: sendLike,
+    sendUnlike: sendUnlike,
     getLikes: getLikes,
     countComments: countComments,
     getComments: getComments,
