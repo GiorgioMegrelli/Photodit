@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const crypto = require("crypto");
+const { table } = require("console");
 const connection = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -116,6 +117,8 @@ function getUser(id, caller) {
             return;
         }
         result[0].CREATE_DATE = result[0].CREATE_DATE.toString();
+        delete result[0].PASSWORD;
+        delete result[0].USERNAME_UPPER;
         caller(result[0]);
     });
 }
@@ -223,7 +226,7 @@ function countComments(id, caller) {
 }
 
 function getComments(id, caller) {
-    const sql = "SELECT c.*, u.USER_ID, u.USERNAME, u.P_IMG, u.CREATE_DATE FROM "
+    const sql = "SELECT c.*, u.USER_ID, u.USERNAME, u.CREATE_DATE FROM "
     + tables.comments + " c LEFT JOIN " + tables.users
     + " u ON c.COMMENTER = u.USER_ID WHERE c.PHOTO_ID = ? ORDER BY c.COMMENT_DATE DESC";
     connection.query(sql, [id], function(err, results) {
@@ -260,7 +263,15 @@ function deleteComment(commentId, caller) {
 }
 
 function isFollower(follower, followed, caller) {
-
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.followings + " WHERE FOLLOWER = ? AND FOLLOWING = ?";
+    connection.query(sql, [follower, followed], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(result[0].RESULT > 0);
+        }
+    });
 }
 
 

@@ -103,9 +103,9 @@ app.get("/profile", function(request, response) {
         response.redirect("/");
     } else {
         //response.render("profile", {});
-        //response.sendFile(__dirname + "/views/profile.html");
+        response.sendFile(__dirname + "/views/profile.html");
         // TODO: delete
-        response.redirect("/image/1");
+        //response.redirect("/image/1");
     }
 });
 
@@ -130,10 +130,20 @@ app.post("/upload", upload.single("imgpath"), function(request, response) {
 
 app.get("/user/:userId", function(request, response) {
     const userId = request.params.userId;
-    if(userId == request.session.thisUserId) {
+    const currentUser = request.session.thisUserId;
+    if(currentUser == undefined) {
+        response.redirect("/");
+    } else if(userId == currentUser) {
         response.redirect("/profile");
+    } else {
+        database.getUser(userId, function(result) {
+            //console.log(result);
+            response.render("user", result);
+        });
     }
-    console.log(userId);
+});
+
+app.post("/getFullNumbersPLC", function(request, response) {
 });
 
 app.get("/image/:imageId", function(request, response) {
@@ -171,29 +181,46 @@ app.get("/image/:imageId", function(request, response) {
                 returnVal.msg = "Image with this ID: " + id + " - doesn't Exist";
                 returnVal.title = returnVal.msg;
             } else {
-                const typeId = result.typeId;
+                const typeId = result.TYPE_ID;
                 returnVal.rtype = rtypes.RETURN_TRUE;
                 returnVal.isAuthor = (result.AUTHOR_ID == currentUser);
                 result.UPLOAD_DATE = formatDate(result.UPLOAD_DATE);
-                if(returnVal.isAuthor) {
+                if(returnVal.isAuthor || typeId == visibilities.PUBLIC) {
                     returnVal.title = result.DESCRIPTION;
-                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
-                    returnVal.userHref = "/profile";
+                    returnVal.desc = result.DESCRIPTION;
+                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.FMT_ID]);
+                    if(returnVal.isAuthor) {
+                        returnVal.userHref = "/profile";
+                    } else {
+                        returnVal.userHref = "/user/" + result.AUTHOR_ID;
+                    }
                     returnVal.username = result.USERNAME;
                     returnVal.uploaddate = result.UPLOAD_DATE;
+                    response.render("image", returnVal);
                 } else if(typeId == visibilities.PRIVATE) {
                     returnVal.rtype = rtypes.RETURN_FALSE;
-                    returnVal.msg = "Only Author of the Image can view it";
+                    returnVal.msg = "Only Author of the Image can see this photo";
                     returnVal.title = returnVal.msg;
+                    response.render("image", returnVal);
                 } else {
-                    returnVal.title = result.DESCRIPTION;
-                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.TYPE_ID]);
-                    returnVal.userHref = "/user/" + result.AUTHOR_ID;
-                    returnVal.username = result.USERNAME;
-                    returnVal.uploaddate = result.UPLOAD_DATE;
+                    database.isFollower(currentUser, result.AUTHOR_ID, function(isfollower) {
+                        if(!isfollower) {
+                            returnVal.rtype = rtypes.RETURN_FALSE;
+                            returnVal.msg = "Only Subscribers of this Author can see this photo";
+                            returnVal.title = returnVal.msg;
+                            returnVal.username = result.USERNAME;
+                        } else {
+                            returnVal.title = result.DESCRIPTION;
+                            returnVal.desc = result.DESCRIPTION;
+                            returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.FMT_ID]);
+                            returnVal.userHref = "/user/" + result.AUTHOR_ID;
+                            returnVal.username = result.USERNAME;
+                            returnVal.uploaddate = result.UPLOAD_DATE;
+                        }
+                        response.render("image", returnVal);
+                    });
                 }
             }
-            response.render("image", returnVal);
         });
     }
 });

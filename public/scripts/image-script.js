@@ -219,6 +219,15 @@ function countLikes() {
     xhttp.send("imageId=" + getUrlId().toString());
 }
 
+function closePupup1() {
+    document.getElementsByClassName("overflow-content")[0].style.display = "none";
+}
+
+function showLikes() {
+    document.getElementsByClassName("overflow-content")[0].style.display = "block";
+    getLikes();
+}
+
 function createElement(tag, className) {
     let node = document.createElement(tag);
     if(className !== undefined) {
@@ -264,15 +273,6 @@ function formatDateComment(date) {
         result += ((result == 1)? " week": " weeks");
     }
     return result + " ago";
-}
-
-function closePupup1() {
-    document.getElementsByClassName("overflow-content")[0].style.display = "none";
-}
-
-function showLikes() {
-    document.getElementsByClassName("overflow-content")[0].style.display = "block";
-    getLikes();
 }
 
 

@@ -1,0 +1,58 @@
+body {
+    background-color: whitesmoke;
+}
+
+header {
+    position: fixed;
+    height: 60px;
+    width: 100%;
+    color: white;
+    background-color: rgba(5, 122, 95, 1);
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 35% auto;
+}
+
+.logo-link {
+    text-align: center;
+}
+
+.logo-link a {
+    position: relative;
+    top: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 34px;
+    font-family: 'SansitaSwashed', sans-serif;
+}
+
+.center {
+    width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    top: 90px;
+}
+
+.user-info {
+    background-color: white;
+    width: 100%;
+    height: 400px;
+    box-shadow: 7px 6px 4px #D0D0D0;
+    display: grid;
+    grid-template-rows: auto 140px;
+}
+
+.number-data {
+    display: grid;
+    grid-template-rows: auto auto;
+}
+
+.number-data-1 {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.number-data-2 {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}

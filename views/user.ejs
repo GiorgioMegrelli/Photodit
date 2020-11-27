@@ -1,10 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title><%= USERNAME %></title>
     <meta charset="utf-8">
+
+    <link href="../public/styles/reset-css.css" rel="stylesheet">
+    <link href="../public/fonts/fonts.css" rel="stylesheet">
+    <link href="../public/styles/user-css.css" rel="stylesheet">    
 </head>
 <body>
+    <header>
+        <div class="logo-link">
+            <a href="/profile">Photodit</a>
+        </div>
+        <div></div>
+    </header>
 
+    <div class="center">
+        <div class="user-info">
+            <div></div>
+            <div class="number-data">
+                <div class="number-data-1">
+                    <p></p>
+                    <p></p>
+                </div>
+                <div class="number-data-2">
+                    <p title="Number of All Public and Protected Photos"><span id="num-data-photos">0</span> Photos</p>
+                    <p title="Number of Likes on All Public and Protected Photos"><span id="num-data-likes">0</span> Likes</p>
+                    <p title="Number of Comments on All Public and Protected Photos"><span id="num-data-comments">0</span> Comments</p>
+                </div>
+            </div>
+        </div>
+        <div class="image-list"></div>
+    </div>
+
+    <script src="../public/scripts/user-script.js"></script>
 </body>
 </html>

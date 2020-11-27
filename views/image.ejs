@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <% if(rtype == vars.RETURN_ERR || rtype == vars.RETURN_FALSE) { %>
     <title><%= title %></title>
+    <% } else { %>
+    <title><%= username %> | <%= title %></title>
+    <% } %>
 
     <link href="../public/styles/reset-css.css" rel="stylesheet">
     <link href="../public/fonts/fonts.css" rel="stylesheet">
@@ -29,7 +33,7 @@
         </div>
 
         <div class="content">
-            <p class="content-desc"></p>
+            <p class="content-desc"><%= desc %></p>
             <img src="<%= src %>" alt="<%= title %>" class="image">
             <div class="image-info">
                 <p class="content-username">
