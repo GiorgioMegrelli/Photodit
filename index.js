@@ -102,10 +102,7 @@ app.get("/profile", function(request, response) {
     if(currentUser === undefined) {
         response.redirect("/");
     } else {
-        //response.render("profile", {});
-        response.sendFile(__dirname + "/views/profile.html");
-        // TODO: delete
-        //response.redirect("/image/1");
+        response.render("profile", {});
     }
 });
 
@@ -137,13 +134,67 @@ app.get("/user/:userId", function(request, response) {
         response.redirect("/profile");
     } else {
         database.getUser(userId, function(result) {
-            //console.log(result);
-            response.render("user", result);
+            if(result === undefined) {
+                response.redirect("/profile");
+            } else {
+                response.render("user", result);
+            }
         });
     }
 });
 
-app.post("/getFullNumbersPLC", function(request, response) {
+app.post("/getFullNumbersLC", function(request, response) {
+    const userId = request.body.userId;
+    database.getLikesOf(userId, function(likeNum) {
+        database.getCommentsOf(userId, function(comNum) {
+            response.send({
+                likeNum: likeNum,
+                commentNum: comNum
+            });
+        });
+    });
+});
+
+app.post("/getFullNumbersFF", function(request, response) {
+    const userId = request.body.userId;
+    database.getFollowersNumOf(userId, function(followers) {
+        database.getFollowingsNumOf(userId, function(followings) {
+            response.send({
+                followingsNum: followings,
+                followersNum: followers
+            });
+        });
+    });
+});
+
+app.post("/getFollowers", function(request, response) {
+    const userId = request.body.userId;
+    database.getFollowers(userId, function(results) {
+        if(results !== undefined) {
+            response.send(results);
+        }
+    });
+});
+
+app.post("/getFollowings", function(request, response) {
+    const userId = request.body.userId;
+    database.getFollowings(userId, function(results) {
+        if(results !== undefined) {
+            response.send(results);
+        }
+    });
+});
+
+app.post("/getPhotos", function(request, response) {
+    const userId = request.body.userId;
+    database.getPhotosOf(userId, function(result) {
+        if(result !== undefined) {
+            for(let i = 0; i<result.length; i++) {
+                result[i].src = toImageFullPath(result[i].PHOTO_ID, result[i].FMT_ID);
+            }
+            response.send(result);
+        }
+    });
 });
 
 app.get("/image/:imageId", function(request, response) {
@@ -188,7 +239,7 @@ app.get("/image/:imageId", function(request, response) {
                 if(returnVal.isAuthor || typeId == visibilities.PUBLIC) {
                     returnVal.title = result.DESCRIPTION;
                     returnVal.desc = result.DESCRIPTION;
-                    returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.FMT_ID]);
+                    returnVal.src = toImageFullPath(result.PHOTO_ID, result.FMT_ID);
                     if(returnVal.isAuthor) {
                         returnVal.userHref = "/profile";
                     } else {
@@ -212,7 +263,7 @@ app.get("/image/:imageId", function(request, response) {
                         } else {
                             returnVal.title = result.DESCRIPTION;
                             returnVal.desc = result.DESCRIPTION;
-                            returnVal.src = "../" + destination + (result.PHOTO_ID + "." + imgExtentionsIndex[result.FMT_ID]);
+                            returnVal.src = toImageFullPath(result.PHOTO_ID, result.FMT_ID);
                             returnVal.userHref = "/user/" + result.AUTHOR_ID;
                             returnVal.username = result.USERNAME;
                             returnVal.uploaddate = result.UPLOAD_DATE;
@@ -224,28 +275,6 @@ app.get("/image/:imageId", function(request, response) {
         });
     }
 });
-
-function createImg(dateStr) {
-    let date = Date.parse(dateStr);
-    let seconds = Math.floor(date/1000);
-    let rgbs = [];
-    for(let i = 0; i<3; i++) {
-        rgbs.push(seconds%220 + 36);
-        seconds = Math.floor(seconds/256);
-    }
-    return ("rgb(" + rgbs[0] + ", " + rgbs[1] + ", " + rgbs[2] + ")");
-}
-
-function formatDate(time) {
-    time = new Date(Date.parse(time));
-    let str = time.getDate() + " ";
-    str += months[time.getMonth()] + " ";
-    str += time.getFullYear() + "  ";
-    str += time.getHours() + ":";
-    str += time.getMinutes() + ":";
-    str += time.getSeconds();
-    return str;
-}
 
 app.post("/loadComments", function(request, response) {
     const imageId = request.body.imageId;
@@ -319,9 +348,37 @@ app.post("/like", function(request, response) {
 });
 
 
-/*
-    My "Encrypting" and "Decrypting"
+
+/**
+    Helper Functions
 */
+function createImg(dateStr) {
+    let date = Date.parse(dateStr);
+    let seconds = Math.floor(date/1000);
+    let rgbs = [];
+    for(let i = 0; i<3; i++) {
+        rgbs.push(seconds%220 + 36);
+        seconds = Math.floor(seconds/256);
+    }
+    return ("rgb(" + rgbs[0] + ", " + rgbs[1] + ", " + rgbs[2] + ")");
+}
+
+function formatDate(time) {
+    time = new Date(Date.parse(time));
+    let str = time.getDate() + " ";
+    str += months[time.getMonth()] + " ";
+    str += time.getFullYear() + "  ";
+    str += time.getHours() + ":";
+    str += time.getMinutes() + ":";
+    str += time.getSeconds();
+    return str;
+}
+
+function toImageFullPath(photoId, fmtId) {
+    return ("../" + destination + (photoId + "." + imgExtentionsIndex[fmtId]));
+}
+
+/* My "Encrypting" and "Decrypting" */
 function randomString() {
     let length = 5 + Math.floor(Math.random()*4);
     let str = "";

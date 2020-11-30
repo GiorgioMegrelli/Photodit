@@ -1,6 +1,5 @@
 const mysql = require("mysql");
 const crypto = require("crypto");
-const { table } = require("console");
 const connection = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -32,15 +31,11 @@ const imgExtentions = {
     JPEG: 3
 };
 
-const imgExtentionsIndex = ["", "PNG", "GIF", "JPG"];
-
 const visibilities = {
     "PUBLIC": 1,
     "PROTECTED": 2,
     "PRIVATE": 3
 };
-
-const visibilitiesIndex = ["", "PUBLIC", "PROTECTED", "PRIVATE"];
 
 
 connection.connect(function(err) {
@@ -114,18 +109,17 @@ function getUser(id, caller) {
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
-            return;
+        } else {
+            result[0].CREATE_DATE = result[0].CREATE_DATE.toString();
+            delete result[0].PASSWORD;
+            delete result[0].USERNAME_UPPER;
+            caller(result[0]);
         }
-        result[0].CREATE_DATE = result[0].CREATE_DATE.toString();
-        delete result[0].PASSWORD;
-        delete result[0].USERNAME_UPPER;
-        caller(result[0]);
     });
 }
 
 function addPhoto(userId, ofilename, desc, type, caller) {
     const sql = "INSERT INTO " + tables.photos + " (AUTHOR_ID, FMT_ID, DESCRIPTION, TYPE_ID) VALUES (?, ?, ?, ?)";
-
     const extention = ofilename.split(".")[1].toUpperCase();
     connection.query(sql, [userId, imgExtentions[extention], desc, type], function(err, result) {
         if(err) {
@@ -147,6 +141,46 @@ function getPhoto(id, caller) {
         } else if(result !== undefined && result.length > 0) {
             result[0].UPLOAD_DATE = result[0].UPLOAD_DATE.toString();
             caller(result[0]);
+        }
+    });
+}
+
+function getPhotosOf(id, caller) {
+    const sql = "SELECT PHOTO_ID, FMT_ID FROM " + tables.photos
+    + " WHERE AUTHOR_ID = ? AND (TYPE_ID = ? OR TYPE_ID = ?) ORDER BY UPLOAD_DATE DESC";
+    connection.query(sql, [id, visibilities.PUBLIC, visibilities.PROTECTED], function(err, result) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(result);
+        }
+    });
+}
+
+function getLikesOf(id, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM "
+    + tables.likes + " l LEFT JOIN " + tables.photos
+    + " p ON l.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?";
+    connection.query(sql, [id], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(0);
+        } else {
+            caller(result[0].RESULT);
+        }
+    });
+}
+
+function getCommentsOf(id, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM "
+    + tables.comments + " c LEFT JOIN " + tables.photos
+    + " p ON c.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?";
+    connection.query(sql, [id], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(0);
+        } else {
+            caller(result[0].RESULT);
         }
     });
 }
@@ -274,6 +308,52 @@ function isFollower(follower, followed, caller) {
     });
 }
 
+function getFollowers(id, caller) {
+    const sql = "SELECT f.FOLLOWING AS ID, u.USERNAME FROM " + tables.followings
+    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWER = u.USER_ID WHERE f.FOLLOWER = ?";
+    connection.query(sql, [id], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results);
+        }
+    });
+}
+
+function getFollowings(id, caller) {
+    const sql = "SELECT f.FOLLOWER AS ID, u.USERNAME FROM " + tables.followings
+    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWING = u.USER_ID WHERE f.FOLLOWING = ?";
+    connection.query(sql, [id], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results);
+        }
+    });
+}
+
+function getFollowersNumOf(id, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.followings + " WHERE FOLLOWING = ?";
+    connection.query(sql, [id], function(err, result) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(result[0].RESULT);
+        }
+    });
+}
+
+function getFollowingsNumOf(id, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.followings + " WHERE FOLLOWER = ?";
+    connection.query(sql, [id], function(err, result) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(result[0].RESULT);
+        }
+    });
+}
+
 
 module.exports = {
     addUser: addUser,
@@ -283,6 +363,9 @@ module.exports = {
     getUser: getUser,
     addPhoto: addPhoto,
     getPhoto: getPhoto,
+    getPhotosOf: getPhotosOf,
+    getLikesOf: getLikesOf,
+    getCommentsOf: getCommentsOf,
     countLikes: countLikes,
     hasLiked: hasLiked,
     sendLike: sendLike,
@@ -292,5 +375,9 @@ module.exports = {
     getComments: getComments,
     addComment: addComment,
     deleteComment: deleteComment,
-    isFollower: isFollower
+    isFollower: isFollower,
+    getFollowers: getFollowers,
+    getFollowings: getFollowings,
+    getFollowersNumOf: getFollowersNumOf,
+    getFollowingsNumOf: getFollowingsNumOf
 };

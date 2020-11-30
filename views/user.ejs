@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= USERNAME %></title>
+    <title><%= USERNAME %> | Photodit</title>
     <meta charset="utf-8">
 
     <link href="../public/styles/reset-css.css" rel="stylesheet">
@@ -16,13 +16,28 @@
         <div></div>
     </header>
 
+    <div class="front-data">
+        <div class="front-data-followings">
+            <button onclick="closeFList1()">Close</button>
+            <div id="f-d-followings"></div>
+        </div>
+        <div class="front-data-followers">
+            <button onclick="closeFList2()">Close</button>
+            <div id="f-d-followers"></div>
+        </div>
+    </div>
+
     <div class="center">
         <div class="user-info">
             <div></div>
             <div class="number-data">
                 <div class="number-data-1">
-                    <p></p>
-                    <p></p>
+                    <p title="Followers of this User" onclick="showFollowings()">
+                        <span id="num-data-followings">0</span> Followings
+                    </p>
+                    <p title="Followings by this User" onclick="showFollowers()">
+                        <span id="num-data-followers">0</span> Followers
+                    </p>
                 </div>
                 <div class="number-data-2">
                     <p title="Number of All Public and Protected Photos"><span id="num-data-photos">0</span> Photos</p>
@@ -31,7 +46,7 @@
                 </div>
             </div>
         </div>
-        <div class="image-list"></div>
+        <div class="images-list"></div>
     </div>
 
     <script src="../public/scripts/user-script.js"></script>

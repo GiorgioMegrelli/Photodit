@@ -49,10 +49,86 @@ header {
 
 .number-data-1 {
     display: grid;
+    width: 60%;
+    margin: 0 auto;
     grid-template-columns: auto auto;
 }
 
 .number-data-2 {
     display: grid;
     grid-template-columns: auto auto auto;
+}
+
+.number-data-1 p, .number-data-2 p {
+    position: relative;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+    font-family: 'Roboto', sans-serif;
+    color: #C1C1C1;
+}
+
+.number-data-1 p span, .number-data-2 p span {
+    color: black;
+}
+
+.number-data-1 p:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.front-data-followings, .front-data-followers {
+    display: none;
+    position: fixed;
+    width: 360px;
+    height: 400px;
+    background-color: white;
+    z-index: 10000;
+    top: 140px;
+    left: calc(50% - 180px);
+    border: 1px solid #979797;
+    border-radius: 3px;
+}
+
+.front-data-follow-item {
+    margin: 2px auto;
+    display: block;
+    text-decoration: none;
+    color: black;
+    width: 90%;
+    background-color: whitesmoke;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    padding: 9px 10px;
+    border-radius: 2px;
+}
+
+.front-data-follow-item:hover {
+    background-color: #E6E6E6;
+}
+
+.front-data button {
+    border: none;
+    cursor: pointer;
+    font-size: 17px;
+    padding: 5px 7px;
+}
+.front-data button:hover {
+    color: white;
+    background-color: rgba(5, 122, 95, 1);
+}
+
+.front-data-followings div, .front-data-followers div {
+    margin: 6px auto;
+    width: 94%;
+    height: 86%;
+    overflow: auto;
+}
+
+.images-list {
+    position: relative;
+    top: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
 }
