@@ -137,6 +137,11 @@ app.get("/user/:userId", function(request, response) {
             if(result === undefined) {
                 response.redirect("/profile");
             } else {
+                console.log(result);
+                result.STATUS = "";
+                for(let i = 0; i<256; i+=3) {
+                    result.STATUS += "abc";
+                }
                 response.render("user", result);
             }
         });
@@ -345,6 +350,10 @@ app.post("/like", function(request, response) {
             });
         }
     });
+});
+
+app.get("/search/:searchStr", function(request, response) {
+    const searchStr = request.params.searchStr;
 });
 
 

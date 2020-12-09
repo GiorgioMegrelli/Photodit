@@ -354,6 +354,15 @@ function getFollowingsNumOf(id, caller) {
     });
 }
 
+function searchByUsernames(substr, caller) {
+}
+
+function searchByPhotoDesc(substr, caller) {
+}
+
+function searchByComment(substr, caller) {
+}
+
 
 module.exports = {
     addUser: addUser,
@@ -379,5 +388,8 @@ module.exports = {
     getFollowers: getFollowers,
     getFollowings: getFollowings,
     getFollowersNumOf: getFollowersNumOf,
-    getFollowingsNumOf: getFollowingsNumOf
+    getFollowingsNumOf: getFollowingsNumOf,
+    searchByUsernames: searchByUsernames,
+    searchByPhotoDesc: searchByPhotoDesc,
+    searchByComment: searchByComment
 };

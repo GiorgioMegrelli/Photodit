@@ -29,7 +29,12 @@
 
     <div class="center">
         <div class="user-info">
-            <div></div>
+            <div class="user-info-wrapper">
+                <p class="user-info-username"><%= USERNAME %></p>
+                <% if(STATUS !== null) { %>
+                <div class="user-info-status">&quot;<%= STATUS %>&quot;</div>
+                <% } %>
+            </div>
             <div class="number-data">
                 <div class="number-data-1">
                     <p title="Followers of this User" onclick="showFollowings()">
@@ -46,7 +51,10 @@
                 </div>
             </div>
         </div>
-        <div class="images-list"></div>
+        <div class="images-list">
+            <div id="images-list"></div>
+            <div class="images-list-bottom"></div>
+        </div>
     </div>
 
     <script src="../public/scripts/user-script.js"></script>

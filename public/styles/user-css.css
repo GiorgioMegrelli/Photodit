@@ -42,9 +42,34 @@ header {
     grid-template-rows: auto 140px;
 }
 
+.user-info-wrapper {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto;
+    background-color: aqua;
+}
+
+.user-info-username {
+    margin: 0 auto;
+    width: 96%;
+    font-size: 33px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.user-info-status {
+    width: 100%; 
+    font-style: italic;
+    font-size: 30px;
+    font-family: 'Roboto', sans-serif;
+    white-space: pre-wrap;      /* CSS3 */ 
+    word-wrap: break-word;      /* IE */
+    overflow-wrap: break-word;
+}
+
 .number-data {
     display: grid;
     grid-template-rows: auto auto;
+    background-color: red;
 }
 
 .number-data-1 {
@@ -129,6 +154,45 @@ header {
 .images-list {
     position: relative;
     top: 40px;
+}
+
+#images-list {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(3, 300px);
+    column-gap: 50px;
+    row-gap: 50px;
+}
+
+.images-list-bottom {
+    width: 100%;
+    height: 100px;
+}
+
+.images-list-item {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-color: red;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.images-list-item-img_-1 {
+    width: 100%;
+    position: relative;
+    top: -100%;
+    bottom: -100%;
+}
+
+.images-list-item-img_0 {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.images-list-item-img_1 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
 }

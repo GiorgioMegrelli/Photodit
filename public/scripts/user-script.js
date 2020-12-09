@@ -37,21 +37,29 @@ function getPhotos() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            let list = document.getElementsByClassName("images-list")[0];
+            let list = document.getElementById("images-list");
             console.log(result);
             document.getElementById("num-data-photos").innerHTML = result.length;
             for(let i = 0; i<result.length; i++) {
+                let imgBoxHref = document.createElement("a");
+                imgBoxHref.href = "/image/" + result[i].PHOTO_ID;
                 let imgBox = document.createElement("div");
-                imgBox.style.backgroundColor = "red";
-                imgBox.style.height = "100px";
+                imgBox.className = "images-list-item";
                 let img = new Image();
                 img.src = result[i].src;
                 img.onload = function() {
-                    console.log(this);
-                    console.log(this.width);
-                    console.log(this.height);
+                    let ratio = this.width/this.height;
+                    if(ratio == 1) {
+                        this.className = "images-list-item-img_0";
+                    } else if(ratio < 1) {
+                        this.className = "images-list-item-img_-1";
+                    } else {
+                        this.className = "images-list-item-img_1";
+                    }
                 };
-                list.appendChild(imgBox);
+                imgBox.appendChild(img);
+                imgBoxHref.appendChild(imgBox);
+                list.appendChild(imgBoxHref);
             }
         }
     };
@@ -67,15 +75,18 @@ function showFollowings() {
             let result = JSON.parse(this.responseText);
             let list = document.getElementById("f-d-followings");
             list.innerHTML = "";
-            for(let i = 0; i<result.length; i++) {
-                let item = document.createElement("a");
-                item.href = "/user/" + result[i].ID;
-                item.innerHTML = result[i].USERNAME;
-                item.className = "front-data-follow-item";
-                list.appendChild(item);
+            if(result.length == 0) {
+
+            } else {
+                for(let i = 0; i<result.length; i++) {
+                    let item = document.createElement("a");
+                    item.href = "/user/" + result[i].ID;
+                    item.innerHTML = result[i].USERNAME;
+                    item.className = "front-data-follow-item";
+                    list.appendChild(item);
+                }
             }
             document.getElementsByClassName("front-data-followings")[0].style.display = "block";
-            console.log(result);
         }
     };
     xhttp.open("post", "/getFollowings", true);
@@ -90,15 +101,18 @@ function showFollowers() {
             let result = JSON.parse(this.responseText);
             let list = document.getElementById("f-d-followers");
             list.innerHTML = "";
-            for(let i = 0; i<result.length; i++) {
-                let item = document.createElement("a");
-                item.href = "/user/" + result[i].ID;
-                item.innerHTML = result[i].USERNAME;
-                item.className = "front-data-follow-item";
-                list.appendChild(item);
+            if(result.length == 0) {
+
+            } else {
+                for(let i = 0; i<result.length; i++) {
+                    let item = document.createElement("a");
+                    item.href = "/user/" + result[i].ID;
+                    item.innerHTML = result[i].USERNAME;
+                    item.className = "front-data-follow-item";
+                    list.appendChild(item);
+                }
             }
             document.getElementsByClassName("front-data-followers")[0].style.display = "block";
-            console.log(result);
         }
     };
     xhttp.open("post", "/getFollowers", true);
