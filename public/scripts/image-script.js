@@ -5,7 +5,7 @@ window.onload = function() {
 };
 
 function preventImgEvents() {
-    let imgs = document.getElementsByTagName("img");
+    let imgs = byTag("img");
     let events = ["onclick", "oncontextmenu", "ondblclick", "onmousedown", "onmouseup"];
     for(let i = 0; i<imgs.length; i++) {
         events.forEach(function(event) {
@@ -17,14 +17,14 @@ function preventImgEvents() {
 }
 
 function loadComments() {
-    let loader = document.getElementsByClassName("comments-loader")[0];
+    let loader = byClass("comments-loader")[0];
     loader.style.display = "block";
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
             let length = result.length;
-            let list = document.getElementsByClassName("comments-list")[0];
+            let list = byClass("comments-list")[0];
             list.innerHTML = "";
             loader.style.display = "none";
             if(length != 0) {
@@ -36,7 +36,7 @@ function loadComments() {
                 node.innerHTML = "Comments Not Found";
                 list.appendChild(node);
             }
-            document.getElementById("comment-number").innerHTML = length;
+            byId("comment-number").innerHTML = length;
         }
     };
     xhttp.open("post", "/loadComments", true);
@@ -52,18 +52,18 @@ function deleteComment(encrIndex) {
             if(this.readyState == 4 && this.status == 200) {
                 let result = JSON.parse(this.responseText);
                 if(result.result) {
-                    let box = document.getElementById(encrIndex);
+                    let box = byId(encrIndex);
                     for(let i = 0; i<4; i++) {  // To "comments-list"
                         box = box.parentNode;
                     }
                     box.parentNode.removeChild(box);
-                    let comNumber = document.getElementById("comment-number");
+                    let comNumber = byId("comment-number");
                     let oldCount = parseInt(comNumber.innerHTML);
                     comNumber.innerHTML = (oldCount - 1);
                     if(oldCount == 1) {
                         let node = createElement("p", "not-found-coms");
                         node.innerHTML = "Comments Not Found";
-                        document.getElementsByClassName("comments-list")[0].appendChild(node);
+                        byClass("comments-list")[0].appendChild(node);
                     }
                 }
             }
@@ -75,7 +75,7 @@ function deleteComment(encrIndex) {
 }
 
 function sendComment() {
-    let element = document.getElementById("comment-input");
+    let element = byId("comment-input");
     let value = element.value.trimEnd();
     element.value = "";
     let urlId = getUrlId().toString();
@@ -170,11 +170,11 @@ function sendLike() {
 function getLikes() {
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        let list = document.getElementById("likes-list");
+        let list = byId("likes-list");
         list.innerHTML = "";
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            let likeList = document.getElementById("likes-list");
+            let likeList = byId("likes-list");
             likeList.innerHTML = "";
             for(let i = 0; i<result.length; i++) {
                 let like = document.createElement("a");
@@ -197,9 +197,9 @@ function countLikes() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            document.getElementById("like-number").innerHTML = result.count;
+            byId("like-number").innerHTML = result.count;
             let buttonValue = "<i class=\"";
-            let likeButton = document.getElementById("like-button");
+            let likeButton = byId("like-button");
             if(likeButton !== undefined) {
                 if(result.hasLiked) {
                     buttonValue += buttonIconTypes[1] + "\"></i> Unlike";
@@ -220,20 +220,12 @@ function countLikes() {
 }
 
 function closePupup1() {
-    document.getElementsByClassName("overflow-content")[0].style.display = "none";
+    byClass("overflow-content")[0].style.display = "none";
 }
 
 function showLikes() {
-    document.getElementsByClassName("overflow-content")[0].style.display = "block";
+    byClass("overflow-content")[0].style.display = "block";
     getLikes();
-}
-
-function createElement(tag, className) {
-    let node = document.createElement(tag);
-    if(className !== undefined) {
-        node.className = className;
-    }
-    return node;
 }
 
 function getUrlId() {

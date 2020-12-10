@@ -75,11 +75,3 @@ function showSpace(type) {
         byClass("reg-space")[0].style.display = "none";
     }
 }
-
-
-function byId(id) {
-    return document.getElementById(id);
-}
-function byClass(cls) {
-    return document.getElementsByClassName(cls);
-}

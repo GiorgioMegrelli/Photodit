@@ -201,7 +201,7 @@ function setMaxCounter(val) {
                 cookies[i][1] = value.toString();
                 addCookie = false;
                 break;
-            } 
+            }
         }
     }
     if(addCookie) {
@@ -286,13 +286,6 @@ function restart() {
         interval = undefined;
     }
     gaming();
-}
-
-function byId(id) {
-    return document.getElementById(id);
-}
-function byClass(cls) {
-    return document.getElementsByClassName(cls);
 }
 
 
