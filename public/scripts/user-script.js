@@ -9,8 +9,8 @@ function fillNumberData1() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            document.getElementById("num-data-followings").innerHTML = result.followingsNum;
-            document.getElementById("num-data-followers").innerHTML = result.followersNum;
+            byId("num-data-followings").innerHTML = result.followingsNum;
+            byId("num-data-followers").innerHTML = result.followersNum;
         }
     };
     xhttp.open("post", "/getFullNumbersFF", true);
@@ -23,8 +23,8 @@ function fillNumberData2() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            document.getElementById("num-data-likes").innerHTML = result.likeNum;
-            document.getElementById("num-data-comments").innerHTML = result.commentNum;
+            byId("num-data-likes").innerHTML = result.likeNum;
+            byId("num-data-comments").innerHTML = result.commentNum;
         }
     };
     xhttp.open("post", "/getFullNumbersLC", true);
@@ -37,14 +37,13 @@ function getPhotos() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            let list = document.getElementById("images-list");
+            let list = byId("images-list");
             console.log(result);
-            document.getElementById("num-data-photos").innerHTML = result.length;
-            for(let i = 0; i<result.length; i++) {
-                let imgBoxHref = document.createElement("a");
+            byId("num-data-photos").innerHTML = result.length;
+            /*for(let i = 0; i<result.length; i++) {
+                let imgBoxHref = createElement("a");
                 imgBoxHref.href = "/image/" + result[i].PHOTO_ID;
-                let imgBox = document.createElement("div");
-                imgBox.className = "images-list-item";
+                let imgBox = createElement("div", "images-list-item");
                 let img = new Image();
                 img.src = result[i].src;
                 img.onload = function() {
@@ -60,7 +59,7 @@ function getPhotos() {
                 imgBox.appendChild(img);
                 imgBoxHref.appendChild(imgBox);
                 list.appendChild(imgBoxHref);
-            }
+            }*/
         }
     };
     xhttp.open("post", "/getPhotos", true);
@@ -73,20 +72,21 @@ function showFollowings() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            let list = document.getElementById("f-d-followings");
+            let list = byId("f-d-followings");
             list.innerHTML = "";
             if(result.length == 0) {
-
+                let nofs = createElement("p", "front-data-ff-no");
+                nofs.innerHTML = "No Followings";
+                list.appendChild(nofs);
             } else {
                 for(let i = 0; i<result.length; i++) {
-                    let item = document.createElement("a");
+                    let item = createElement("a", "front-data-follow-item");
                     item.href = "/user/" + result[i].ID;
                     item.innerHTML = result[i].USERNAME;
-                    item.className = "front-data-follow-item";
                     list.appendChild(item);
                 }
             }
-            document.getElementsByClassName("front-data-followings")[0].style.display = "block";
+            byClass("front-data-followings")[0].style.display = "block";
         }
     };
     xhttp.open("post", "/getFollowings", true);
@@ -99,23 +99,50 @@ function showFollowers() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
-            let list = document.getElementById("f-d-followers");
+            let list = byId("f-d-followers");
             list.innerHTML = "";
             if(result.length == 0) {
-
+                let nofs = createElement("p", "front-data-ff-no");
+                nofs.innerHTML = "No Followers";
+                list.appendChild(nofs);
             } else {
                 for(let i = 0; i<result.length; i++) {
-                    let item = document.createElement("a");
+                    let item = createElement("a", "front-data-follow-item");
                     item.href = "/user/" + result[i].ID;
                     item.innerHTML = result[i].USERNAME;
-                    item.className = "front-data-follow-item";
                     list.appendChild(item);
                 }
+                console.log(result)
             }
-            document.getElementsByClassName("front-data-followers")[0].style.display = "block";
+            byClass("front-data-followers")[0].style.display = "block";
         }
     };
     xhttp.open("post", "/getFollowers", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send("userId=" + getUrlId().toString());
+}
+
+function followUser() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            let result = JSON.parse(this.responseText);
+            let u_u_follow = byId("user-username-follow");
+            let butText = byId("follow-button-text");
+            let butIcon = byId("follow-button-icon-i");
+            if(result.type == 1) {
+                u_u_follow.className = "u-i-u-followed";
+                butText.innerHTML = "Unfollow";
+                butIcon.innerHTML = "check_box";
+            } else {
+                u_u_follow.className = "u-i-u-unfollowed";
+                butText.innerHTML = "Follow";
+                butIcon.innerHTML = "person_add";
+            }
+            fillNumberData1();
+        }
+    };
+    xhttp.open("post", "/followUser", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("userId=" + getUrlId().toString());
 }
@@ -131,9 +158,47 @@ function getUrlId() {
 }
 
 function closeFList1() {
-    document.getElementsByClassName("front-data-followings")[0].style.display = "none";
+    byClass("front-data-followings")[0].style.display = "none";
 }
 
 function closeFList2() {
-    document.getElementsByClassName("front-data-followers")[0].style.display = "none";
+    byClass("front-data-followers")[0].style.display = "none";
+}
+
+function closeShowStatus() {
+    let status = byClass("user-info-status-span")[0].style;
+    let status_p = byClass("user-info-status-p")[0];
+    if(status.display.trim().toLowerCase() === "none") {
+        status.display = "block";
+        status_p.innerHTML = "Close Status";
+    } else {
+        status.display = "none";
+        status_p.innerHTML = "Show Status";
+    }
+}
+
+function closePInfo(bool) {
+    let container = byId("u-i-personal-button");
+    container.setAttribute("onclick", ["closePInfo(", !bool, ")"].join(""));
+    container.innerHTML = [(bool)? "Open": "Close", " Personal Information"].join("");
+    let items = byClass("user-info-personal-p");
+    for(let i = 0; i<items.length; i++) {
+        let item = items[i];
+        if(bool) {
+            item.style.display = "none";
+        } else {
+            item.style.display = "block";
+        }
+    };
+}
+
+function copyEmail() {
+    var copyText = byId("copy-email");
+    var textArea = createElement("textarea");
+    textArea.value = copyText.innerHTML;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("Copy");
+    textArea.remove();
+    alert("Email Copied");
 }

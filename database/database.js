@@ -296,9 +296,9 @@ function deleteComment(commentId, caller) {
     });
 }
 
-function isFollower(follower, followed, caller) {
+function isFollower(follower, following, caller) {
     const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.followings + " WHERE FOLLOWER = ? AND FOLLOWING = ?";
-    connection.query(sql, [follower, followed], function(err, result) {
+    connection.query(sql, [follower, following], function(err, result) {
         if(err) {
             console.log(err);
             caller(false);
@@ -308,9 +308,33 @@ function isFollower(follower, followed, caller) {
     });
 }
 
+function followUser(follower, following, caller) {
+    const sql = "INSERT INTO " + tables.followings + " (FOLLOWER, FOLLOWING) VALUES (?, ?)";
+    connection.query(sql, [follower, following], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
+        }
+    });
+}
+
+function unfollowUser(follower, following, caller) {
+    const sql = "DELETE FROM " + tables.followings + " WHERE FOLLOWER = ? AND FOLLOWING = ?";
+    connection.query(sql, [follower, following], function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
+        }
+    });
+}
+
 function getFollowers(id, caller) {
-    const sql = "SELECT f.FOLLOWING AS ID, u.USERNAME FROM " + tables.followings
-    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWER = u.USER_ID WHERE f.FOLLOWER = ?";
+    const sql = "SELECT f.FOLLOWER AS ID, u.USERNAME FROM " + tables.followings
+    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWER = u.USER_ID WHERE f.FOLLOWING = ?";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -321,8 +345,8 @@ function getFollowers(id, caller) {
 }
 
 function getFollowings(id, caller) {
-    const sql = "SELECT f.FOLLOWER AS ID, u.USERNAME FROM " + tables.followings
-    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWING = u.USER_ID WHERE f.FOLLOWING = ?";
+    const sql = "SELECT f.FOLLOWING AS ID, u.USERNAME FROM " + tables.followings
+    + " f LEFT JOIN " + tables.users + " u ON f.FOLLOWING = u.USER_ID WHERE f.FOLLOWER = ?";
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
@@ -355,12 +379,36 @@ function getFollowingsNumOf(id, caller) {
 }
 
 function searchByUsernames(substr, caller) {
+    const sql = "SELECT USER_ID, USERNAME FROM " + tables.users + " WHERE USERNAME LIKE ?";
+    connection.query(sql, ["%" + substr + "%"], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results);
+        }
+    });
 }
 
-function searchByPhotoDesc(substr, caller) {
+function searchByPhotoDescs(substr, caller) {
+    const sql = "SELECT PHOTO_ID, AUTHOR_ID, DESCRIPTION FROM " + tables.photos + " WHERE DESCRIPTION LIKE ?";
+    connection.query(sql, ["%" + substr + "%"], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results);
+        }
+    });
 }
 
-function searchByComment(substr, caller) {
+function searchByComments(substr, caller) {
+    const sql = "SELECT PHOTO_ID, COMMENT FROM " + tables.comments + " WHERE COMMENT LIKE ?";
+    connection.query(sql, ["%" + substr + "%"], function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results);
+        }
+    });
 }
 
 
@@ -385,11 +433,13 @@ module.exports = {
     addComment: addComment,
     deleteComment: deleteComment,
     isFollower: isFollower,
+    followUser: followUser,
+    unfollowUser: unfollowUser,
     getFollowers: getFollowers,
     getFollowings: getFollowings,
     getFollowersNumOf: getFollowersNumOf,
     getFollowingsNumOf: getFollowingsNumOf,
     searchByUsernames: searchByUsernames,
-    searchByPhotoDesc: searchByPhotoDesc,
-    searchByComment: searchByComment
+    searchByPhotoDescs: searchByPhotoDescs,
+    searchByComments: searchByComments
 };

@@ -4,6 +4,8 @@
     <title><%= USERNAME %> | Photodit</title>
     <meta charset="utf-8">
 
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <link href="../public/styles/reset-css.css" rel="stylesheet">
     <link href="../public/fonts/fonts.css" rel="stylesheet">
     <link href="../public/styles/user-css.css" rel="stylesheet">    
@@ -28,11 +30,46 @@
     </div>
 
     <div class="center">
+        <div class="user-username">
+            <%
+            let f_style = (isFollower)? "u-i-u-followed": "u-i-u-unfollowed";
+            let username_back = ["background-color: ", background, ";"].join("");
+            %>
+            <div class="user-username-text-wrap" style="<%= username_back %>">
+                <p class="user-username-text"><%= USERNAME %></p>
+            </div>
+            <div id="user-username-follow" class="<%= f_style %>" onclick="followUser()">
+                <p id="follow-button-text"><%= (isFollower)? "Unfollow": "Follow" %></p>
+                <p id="follow-button-icon">
+                    <i class="material-icons" id="follow-button-icon-i"><%= (isFollower)? "check_box": "person_add" %></i>
+                </p>
+            </div>
+        </div>
         <div class="user-info">
             <div class="user-info-wrapper">
-                <p class="user-info-username"><%= USERNAME %></p>
                 <% if(STATUS !== null) { %>
-                <div class="user-info-status">&quot;<%= STATUS %>&quot;</div>
+                <div class="user-info-status">
+                    <span class="user-info-status-span">&quot;<%= STATUS %>&quot;</span>
+                    <p class="user-info-status-p" onclick="closeShowStatus()">Close Status</p>
+                </div>
+                <% } %>
+                <%
+                let u_i_p_style = ["grid-template-columns: repeat(", FULLNAME_CNT, ", auto)"].join("");
+                %>
+                <div class="user-info-personal" style="<%= u_i_p_style %>">
+                    <% if(FULLNAME !== null) { %>
+                    <p class="user-info-personal-p">
+                        <i class="material-icons">person</i> <%= FULLNAME %>
+                    </p>
+                    <% } %>
+                    <% if(EMAIL !== null) { %>
+                    <p class="user-info-personal-p">
+                        <i class="material-icons">email</i> <span title="Doubleclick to copy Email" id="copy-email" ondblclick="copyEmail()"><%= EMAIL %></span>
+                    </p>
+                    <% } %>
+                </div>
+                <% if(FULLNAME !== null || EMAIL !== null) { %>
+                <p id="u-i-personal-button" onclick="closePInfo(true)">Close Personal Information</p>
                 <% } %>
             </div>
             <div class="number-data">
@@ -57,6 +94,7 @@
         </div>
     </div>
 
+    <script src="../public/scripts/helper-script.js"></script>
     <script src="../public/scripts/user-script.js"></script>
 </body>
 </html>

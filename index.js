@@ -15,6 +15,15 @@ const imgExtentionsIndex = ["", "PNG", "GIF", "JPG"];
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+const BACK_COLORS = [
+    "000080", "00008B", "0000CD", "0000FF", "006400", "008000", "008080", "008B8B", "191970", "1E90FF", "20B2AA", "228B22", "2E8B57", "2F4F4F", "32CD32", "3CB371", "4169E1",
+    "4682B4", "483D8B", "48D1CC", "4B0082", "556B2F", "5F9EA0", "6495ED", "66CDAA", "696969", "6A5ACD", "6B8E23", "708090", "778899", "7B68EE", "800000", "800080", "808000",
+    "808080", "87CEEB", "87CEFA", "8A2BE2", "8B0000", "8B008B", "8B4513", "8FBC8F", "9370D8", "9400D3", "9932CC", "9ACD32", "A0522D", "A52A2A", "A9A9A9", "ADD8E6", "B0C4DE",
+    "B22222", "B8860B", "BA55D3", "BC8F8F", "BDB76B", "C0C0C0", "C71585", "CD5C5C", "CD853F", "D2691E", "D2B48C", "D87093", "D8BFD8", "DA70D6", "DAA520", "DC143C", "DDA0DD",
+    "DEB887", "E9967A", "EE82EE", "F08080", "F4A460", "FF0000", "FF00FF", "FF1493", "FF4500", "FF6347", "FF69B4", "FF7F50", "FF8C00", "FFA07A", "FFA500", "FFB6C1", "FFD700"
+];
+const BACK_COLORS_LEN = BACK_COLORS.length;
+
 
 const app = express();
 const upload = multer({
@@ -137,12 +146,29 @@ app.get("/user/:userId", function(request, response) {
             if(result === undefined) {
                 response.redirect("/profile");
             } else {
-                console.log(result);
-                result.STATUS = "";
-                for(let i = 0; i<256; i+=3) {
-                    result.STATUS += "abc";
-                }
-                response.render("user", result);
+                database.isFollower(currentUser, userId, function(isFollower) {
+                    result.FULLNAME = null;
+                    if(result.FNAME !== null || result.LNAME !== null) {
+                        let arr = [];
+                        if(result.LNAME !== null) {
+                            arr.push(result.LNAME);
+                        }
+                        if(result.FNAME !== null) {
+                            arr.push(result.FNAME);
+                        }
+                        result.FULLNAME = arr.join(", ");
+                    }
+                    result.FULLNAME_CNT = 0;
+                    if(result.FULLNAME !== null) {
+                        result.FULLNAME_CNT++;
+                    }
+                    if(result.EMAIL !== null) {
+                        result.FULLNAME_CNT++;
+                    }
+                    result.isFollower = isFollower;
+                    result.background = createImg(result.CREATE_DATE.toString());
+                    response.render("user", result);
+                });
             }
         });
     }
@@ -150,6 +176,10 @@ app.get("/user/:userId", function(request, response) {
 
 app.post("/getFullNumbersLC", function(request, response) {
     const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getLikesOf(userId, function(likeNum) {
         database.getCommentsOf(userId, function(comNum) {
             response.send({
@@ -162,6 +192,10 @@ app.post("/getFullNumbersLC", function(request, response) {
 
 app.post("/getFullNumbersFF", function(request, response) {
     const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getFollowersNumOf(userId, function(followers) {
         database.getFollowingsNumOf(userId, function(followings) {
             response.send({
@@ -174,6 +208,10 @@ app.post("/getFullNumbersFF", function(request, response) {
 
 app.post("/getFollowers", function(request, response) {
     const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getFollowers(userId, function(results) {
         if(results !== undefined) {
             response.send(results);
@@ -183,6 +221,10 @@ app.post("/getFollowers", function(request, response) {
 
 app.post("/getFollowings", function(request, response) {
     const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getFollowings(userId, function(results) {
         if(results !== undefined) {
             response.send(results);
@@ -190,8 +232,31 @@ app.post("/getFollowings", function(request, response) {
     });
 });
 
+app.post("/followUser", function(request, response) {
+    const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
+    database.isFollower(currentUser, userId, function(isfollower) {
+        if(isfollower) {
+            database.unfollowUser(currentUser, userId, function(result) {
+                response.send({result: result, type: -1});
+            });
+        } else {
+            database.followUser(currentUser, userId, function(result) {
+                response.send({result: result, type: 1});
+            });
+        }
+    });
+});
+
 app.post("/getPhotos", function(request, response) {
     const userId = request.body.userId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getPhotosOf(userId, function(result) {
         if(result !== undefined) {
             for(let i = 0; i<result.length; i++) {
@@ -284,6 +349,9 @@ app.get("/image/:imageId", function(request, response) {
 app.post("/loadComments", function(request, response) {
     const imageId = request.body.imageId;
     const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getComments(imageId, function(results) {
         for(let i = 0; i<results.length; i++) {
             results[i].COMMENT_DATE = results[i].COMMENT_DATE.toString();
@@ -301,6 +369,9 @@ app.post("/loadComments", function(request, response) {
 
 app.post("/addComment", function(request, response) {
     const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     const comment = request.body.comment;
     const imageId = request.body.imageId;
     database.addComment(currentUser, imageId, comment, function(result) {
@@ -310,6 +381,10 @@ app.post("/addComment", function(request, response) {
 
 app.post("/deleteComment", function(request, response) {
     const encyptedId = request.body.encyptedId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     let id = parseInt(decrypt(encyptedId).trim());
     database.deleteComment(id, function(result) {
         response.send({result: (result !== undefined)});
@@ -319,6 +394,9 @@ app.post("/deleteComment", function(request, response) {
 app.post("/countLikes", function(request, response) {
     const imageId = request.body.imageId;
     const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.countLikes(imageId, function(count) {
         database.hasLiked(imageId, currentUser, function(liked) {
             response.send({
@@ -331,6 +409,10 @@ app.post("/countLikes", function(request, response) {
 
 app.post("/getLikes", function(request, response) {
     const imageId = request.body.imageId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.getLikes(imageId, function(results) {
         response.send(results);
     });
@@ -339,6 +421,9 @@ app.post("/getLikes", function(request, response) {
 app.post("/like", function(request, response) {
     const imageId = request.body.imageId;
     const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
     database.hasLiked(imageId, currentUser, function(liked) {
         if(liked) {
             database.sendUnlike(imageId, currentUser, function(result) {
@@ -354,6 +439,11 @@ app.post("/like", function(request, response) {
 
 app.get("/search/:searchStr", function(request, response) {
     const searchStr = request.params.searchStr;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
+    response.render("search");
 });
 
 
@@ -363,13 +453,8 @@ app.get("/search/:searchStr", function(request, response) {
 */
 function createImg(dateStr) {
     let date = Date.parse(dateStr);
-    let seconds = Math.floor(date/1000);
-    let rgbs = [];
-    for(let i = 0; i<3; i++) {
-        rgbs.push(seconds%220 + 36);
-        seconds = Math.floor(seconds/256);
-    }
-    return ("rgb(" + rgbs[0] + ", " + rgbs[1] + ", " + rgbs[2] + ")");
+    let randIndex = date%BACK_COLORS_LEN;
+    return "#" + BACK_COLORS[randIndex];
 }
 
 function formatDate(time) {

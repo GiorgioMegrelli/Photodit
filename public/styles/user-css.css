@@ -33,55 +33,178 @@ header {
     top: 90px;
 }
 
-.user-info {
-    background-color: white;
+.user-username, .user-info {
     width: 100%;
-    height: 400px;
+    background-color: white;
     box-shadow: 7px 6px 4px #D0D0D0;
     display: grid;
-    grid-template-rows: auto 140px;
+}
+
+.user-username {
+    grid-template-columns: auto 150px;
+    height: 60px;
+    overflow: hidden;
+}
+
+.user-username-text {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-size: 25px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    padding: 18px 0px;
+    color: white;
+}
+
+#user-username-follow {
+    border: none;
+    border-left: 3px solid rgba(5, 122, 95, 1);
+    box-sizing: border-box;
+    font-family: 'SansitaSwashed', sans-serif;
+    cursor: pointer;
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: 65% auto;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+#follow-button-text {
+    position: relative;
+    top: 21px;
+    text-align: right;
+    font-weight: bold;
+}
+
+#follow-button-icon {
+    font-size: 28px;
+    position: relative;
+    top: 19px;
+    text-align: center;
+}
+
+.u-i-u-followed {
+    background-color: rgba(5, 122, 95, 1);
+    color: white;
+    font-size: 20px;
+}
+
+.u-i-u-unfollowed {
+    background-color: #F0F0F0;
+    color: rgba(5, 122, 95, 1);
+    font-size: 22px;
+}
+
+.user-info {
+    margin-top: 40px;
+    grid-template-rows: auto 130px;
 }
 
 .user-info-wrapper {
-    display: grid;
     width: 100%;
-    grid-template-columns: auto;
-    background-color: aqua;
-}
-
-.user-info-username {
-    margin: 0 auto;
-    width: 96%;
-    font-size: 33px;
-    font-family: 'Roboto', sans-serif;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    margin-bottom: 20px;
 }
 
 .user-info-status {
-    width: 100%; 
+    margin: 0 auto;
+    position: relative;
+    top: 26px;
+    max-width: 920px;
+    word-wrap: break-word;
     font-style: italic;
-    font-size: 30px;
+    font-size: 28px;
     font-family: 'Roboto', sans-serif;
-    white-space: pre-wrap;      /* CSS3 */ 
-    word-wrap: break-word;      /* IE */
-    overflow-wrap: break-word;
+    text-align: center;
+    color: #C0C0C0;
+}
+
+.user-info-status-p {
+    margin: 8px auto;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: bold;
+    color: rgba(5, 122, 95, 1);
+}
+
+.user-info-status-p:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.user-info-status-span {
+    display: block;
+}
+
+.user-info-no-status {
+    width: 100%;
+    padding: 0 10px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-style: italic;
+    font-size: 24px;
+    padding: 10px 0px;
+    color: #C0C0C0;
+}
+
+.user-info-personal {
+    margin-top: 20px;
+    display: grid;
+}
+
+.user-info-personal-p {
+    width: 100%;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 19px;
+    padding: 18px 0px;
+    color: #C0C0C0;
+}
+
+.user-info-personal-p i {
+    color: black;
+    position: relative;
+    top: 5px;
+}
+
+#copy-email:hover {
+    cursor: pointer;
+}
+
+#u-i-personal-button {
+    margin-top: 6px;
+    width: 100%;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    color: rgba(5, 122, 95, 1);
+    font-size: 18px;
+}
+
+#u-i-personal-button:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .number-data {
     display: grid;
-    grid-template-rows: auto auto;
-    background-color: red;
+    grid-template-rows: repeat(2, 1fr);
 }
 
 .number-data-1 {
     display: grid;
     width: 60%;
     margin: 0 auto;
-    grid-template-columns: auto auto;
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .number-data-2 {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .number-data-1 p, .number-data-2 p {
@@ -114,6 +237,14 @@ header {
     left: calc(50% - 180px);
     border: 1px solid #979797;
     border-radius: 3px;
+}
+
+.front-data-ff-no {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    padding: 20px 0px;
 }
 
 .front-data-follow-item {
@@ -194,5 +325,4 @@ header {
     position: absolute;
     left: 50%;
     top: 50%;
-    -webkit-transform: translateY(-50%) translateX(-50%);
 }
