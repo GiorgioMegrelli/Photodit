@@ -23,24 +23,26 @@ function fillNumberData2() {
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
+            byId("num-data-photos").innerHTML = result.imageNum;
             byId("num-data-likes").innerHTML = result.likeNum;
             byId("num-data-comments").innerHTML = result.commentNum;
         }
     };
-    xhttp.open("post", "/getFullNumbersLC", true);
+    xhttp.open("post", "/getFullNumbersPLC", true);
     xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhttp.send("userId=" + getUrlId().toString());
 }
 
 function getPhotos() {
+    let loader = byClass("image-pre-loader")[0].style;
+    loader.display = "block";
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if(this.readyState == 4 && this.status == 200) {
             let result = JSON.parse(this.responseText);
             let list = byId("images-list");
-            console.log(result);
-            byId("num-data-photos").innerHTML = result.length;
-            /*for(let i = 0; i<result.length; i++) {
+            list.innerHTML = "";
+            for(let i = 0; i<result.length; i++) {
                 let imgBoxHref = createElement("a");
                 imgBoxHref.href = "/image/" + result[i].PHOTO_ID;
                 let imgBox = createElement("div", "images-list-item");
@@ -56,10 +58,23 @@ function getPhotos() {
                         this.className = "images-list-item-img_1";
                     }
                 };
+                let imgLikeNum = createElement("div", "images-list-item-like-num");
+                let imgLikeNum_div1 = createElement("div");
+                let imgLikeNum_div2 = createElement("div");
+                let imgLikeNum_p = createElement("p", "images-list-item-like-num-p");
+                let imgLikeNum_i = createElement("i", "material-icons material-icons-my-confgs-1");
+                imgLikeNum_p.appendChild(createTextNode(result[i].LIKE_NUM));
+                imgLikeNum_i.appendChild(createTextNode("thumb_up"));
+                imgLikeNum_div1.appendChild(imgLikeNum_p);
+                imgLikeNum_div2.appendChild(imgLikeNum_i);
+                imgLikeNum.appendChild(imgLikeNum_div1);
+                imgLikeNum.appendChild(imgLikeNum_div2);
                 imgBox.appendChild(img);
+                imgBox.appendChild(imgLikeNum);
                 imgBoxHref.appendChild(imgBox);
                 list.appendChild(imgBoxHref);
-            }*/
+            }
+            loader.display = "none";
         }
     };
     xhttp.open("post", "/getPhotos", true);
@@ -140,6 +155,7 @@ function followUser() {
                 butIcon.innerHTML = "person_add";
             }
             fillNumberData1();
+            getPhotos();
         }
     };
     xhttp.open("post", "/followUser", true);

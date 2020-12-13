@@ -17,3 +17,7 @@ function createElement(tag, className) {
     }
     return node;
 }
+
+function createTextNode(value) {
+    return document.createTextNode(value);
+}

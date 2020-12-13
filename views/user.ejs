@@ -32,8 +32,8 @@
     <div class="center">
         <div class="user-username">
             <%
-            let f_style = (isFollower)? "u-i-u-followed": "u-i-u-unfollowed";
             let username_back = ["background-color: ", background, ";"].join("");
+            let f_style = (isFollower)? "u-i-u-followed": "u-i-u-unfollowed";
             %>
             <div class="user-username-text-wrap" style="<%= username_back %>">
                 <p class="user-username-text"><%= USERNAME %></p>
@@ -90,7 +90,9 @@
         </div>
         <div class="images-list">
             <div id="images-list"></div>
-            <div class="images-list-bottom"></div>
+            <div class="images-list-bottom">
+                <div class="image-pre-loader"></div>
+            </div>
         </div>
     </div>
 

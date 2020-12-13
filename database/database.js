@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const crypto = require("crypto");
+const path = require("path");
 const connection = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -120,7 +121,7 @@ function getUser(id, caller) {
 
 function addPhoto(userId, ofilename, desc, type, caller) {
     const sql = "INSERT INTO " + tables.photos + " (AUTHOR_ID, FMT_ID, DESCRIPTION, TYPE_ID) VALUES (?, ?, ?, ?)";
-    const extention = ofilename.split(".")[1].toUpperCase();
+    const extention = path.extname(ofilename).replace(".", "").toUpperCase();
     connection.query(sql, [userId, imgExtentions[extention], desc, type], function(err, result) {
         if(err) {
             console.log(err);
@@ -145,14 +146,48 @@ function getPhoto(id, caller) {
     });
 }
 
-function getPhotosOf(id, caller) {
-    const sql = "SELECT PHOTO_ID, FMT_ID FROM " + tables.photos
-    + " WHERE AUTHOR_ID = ? AND (TYPE_ID = ? OR TYPE_ID = ?) ORDER BY UPLOAD_DATE DESC";
-    connection.query(sql, [id, visibilities.PUBLIC, visibilities.PROTECTED], function(err, result) {
+function getPhotosOf(id, isfollower, caller) {
+    const sql = [
+        "SELECT p.*, COUNT(l.liker) AS LIKE_NUM FROM ",
+        tables.photos,
+        " p LEFT JOIN ",
+        tables.likes,
+        " l ON p.PHOTO_ID = l.PHOTO_ID ",
+        "WHERE p.AUTHOR_ID = ? AND (p.TYPE_ID = ? OR p.TYPE_ID = ?) ",
+        "GROUP BY p.PHOTO_ID ",
+        "ORDER BY UPLOAD_DATE DESC"
+    ].join("");
+    const params = [id, visibilities.PUBLIC, (isfollower)? visibilities.PROTECTED: null];
+    connection.query(sql, params, function(err, results) {
         if(err) {
             console.log(err);
         } else {
-            caller(result);
+            caller(results);
+        }
+    });
+}
+
+function getPhotosNumOf(id, caller) {
+    const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.photos
+    + " WHERE AUTHOR_ID = ? AND (TYPE_ID = ? OR TYPE_ID = ?)";
+    const params = [id, visibilities.PUBLIC,  visibilities.PROTECTED];
+    connection.query(sql, params, function(err, results) {
+        if(err) {
+            console.log(err);
+        } else {
+            caller(results[0].RESULT);
+        }
+    });
+}
+
+function changeVisibility(image_id, vtype, caller) {
+    const sql = "UPDATE " + tables.photos + " SET TYPE_ID = ? WHERE PHOTO_ID = ?";
+    connection.query(sql, [vtype, image_id], function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
         }
     });
 }
@@ -411,6 +446,42 @@ function searchByComments(substr, caller) {
     });
 }
 
+function deleteImgLikes(image_id, caller) {
+    const sql = "DELETE FROM " + tables.likes + " WHERE PHOTO_ID = ?";
+    connection.query(sql, [image_id], function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
+        }
+    });
+}
+
+function deleteImgComments(image_id, caller) {
+    const sql = "DELETE FROM " + tables.comments + " WHERE PHOTO_ID = ?";
+    connection.query(sql, [image_id], function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
+        }
+    });
+}
+
+function deleteImage(image_id, caller) {
+    const sql = "DELETE FROM " + tables.photos + " WHERE PHOTO_ID = ?";
+    connection.query(sql, [image_id], function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+        } else {
+            caller(true);
+        }
+    });
+}
+
 
 module.exports = {
     addUser: addUser,
@@ -421,6 +492,8 @@ module.exports = {
     addPhoto: addPhoto,
     getPhoto: getPhoto,
     getPhotosOf: getPhotosOf,
+    getPhotosNumOf: getPhotosNumOf,
+    changeVisibility: changeVisibility,
     getLikesOf: getLikesOf,
     getCommentsOf: getCommentsOf,
     countLikes: countLikes,
@@ -441,5 +514,8 @@ module.exports = {
     getFollowingsNumOf: getFollowingsNumOf,
     searchByUsernames: searchByUsernames,
     searchByPhotoDescs: searchByPhotoDescs,
-    searchByComments: searchByComments
+    searchByComments: searchByComments,
+    deleteImgLikes: deleteImgLikes,
+    deleteImgComments: deleteImgComments,
+    deleteImage: deleteImage
 };

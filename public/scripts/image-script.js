@@ -155,6 +155,24 @@ function createCommentBox(rowData) {
     return mainBox;
 }
 
+function showSettings(bool) {
+    let content = byClass("image-settings-content")[0].style;
+    if(bool) {
+        content.left = "0";
+    } else {
+        content.left = "-100%";
+    }
+    byId("image-setts-button").setAttribute("onclick", ["showSettings(", !bool, ")"].join(""));
+}
+
+function deleteThisImage() {
+    let confirmed = confirm("Do you really want to delete this Image?");
+    if(confirmed) {
+        byId("image-del-form-input").value = getUrlId().toString().trim();
+        byId("image-del-form").submit();
+    }
+}
+
 function sendLike() {
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -200,7 +218,7 @@ function countLikes() {
             byId("like-number").innerHTML = result.count;
             let buttonValue = "<i class=\"";
             let likeButton = byId("like-button");
-            if(likeButton !== undefined) {
+            if(likeButton !== null) {
                 if(result.hasLiked) {
                     buttonValue += buttonIconTypes[1] + "\"></i> Unlike";
                     likeButton.style.backgroundColor = "#E6E6E6";
@@ -226,6 +244,24 @@ function closePupup1() {
 function showLikes() {
     byClass("overflow-content")[0].style.display = "block";
     getLikes();
+}
+
+function changeVisibility() {
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            let result = JSON.parse(this.responseText);
+            if(result.result) {
+                alert("Visibility Changed");
+            }
+        }
+    };
+    xhttp.open("post", "/changeVisibility", true);
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhttp.send([
+        ["imageId", getUrlId().toString()].join("="),
+        ["vtypeId", byId("vis-type-select").value.trim()].join("=")
+    ].join("&"));
 }
 
 function getUrlId() {

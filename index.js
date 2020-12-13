@@ -174,7 +174,7 @@ app.get("/user/:userId", function(request, response) {
     }
 });
 
-app.post("/getFullNumbersLC", function(request, response) {
+app.post("/getFullNumbersPLC", function(request, response) {
     const userId = request.body.userId;
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
@@ -182,9 +182,12 @@ app.post("/getFullNumbersLC", function(request, response) {
     }
     database.getLikesOf(userId, function(likeNum) {
         database.getCommentsOf(userId, function(comNum) {
-            response.send({
-                likeNum: likeNum,
-                commentNum: comNum
+            database.getPhotosNumOf(userId, function(imgNum) {
+                response.send({
+                    imageNum: imgNum,
+                    likeNum: likeNum,
+                    commentNum: comNum
+                });
             });
         });
     });
@@ -257,13 +260,15 @@ app.post("/getPhotos", function(request, response) {
     if(currentUser === undefined) {
         response.redirect("/");
     }
-    database.getPhotosOf(userId, function(result) {
-        if(result !== undefined) {
-            for(let i = 0; i<result.length; i++) {
-                result[i].src = toImageFullPath(result[i].PHOTO_ID, result[i].FMT_ID);
+    database.isFollower(currentUser, userId, function(isfollower) {
+        database.getPhotosOf(userId, isfollower, function(result) {
+            if(result !== undefined) {
+                for(let i = 0; i<result.length; i++) {
+                    result[i].src = toImageFullPath(result[i].PHOTO_ID, result[i].FMT_ID);
+                }
+                response.send(result);
             }
-            response.send(result);
-        }
+        });
     });
 });
 
@@ -303,6 +308,7 @@ app.get("/image/:imageId", function(request, response) {
                 returnVal.title = returnVal.msg;
             } else {
                 const typeId = result.TYPE_ID;
+                returnVal.vtypeId = typeId;
                 returnVal.rtype = rtypes.RETURN_TRUE;
                 returnVal.isAuthor = (result.AUTHOR_ID == currentUser);
                 result.UPLOAD_DATE = formatDate(result.UPLOAD_DATE);
@@ -344,6 +350,39 @@ app.get("/image/:imageId", function(request, response) {
             }
         });
     }
+});
+
+app.post("/changeVisibility", function(request, response) {
+    const imageId = request.body.imageId;
+    const vtypeId = request.body.vtypeId;
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
+    database.changeVisibility(imageId, vtypeId, function(result) {
+        response.send({result: result});
+    });
+});
+
+app.post("/deleteImage", function(request, response) {
+    const imageId = parseInt(request.body.imageId);
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+    }
+    database.deleteImgLikes(imageId, function(result1) {
+        if(result1) {
+            database.deleteImgComments(imageId, function(result2) {
+                if(result2) {
+                    database.deleteImage(imageId, function(result3) {
+                        if(result3) {
+                            response.redirect("/profile");
+                        }
+                    });
+                }
+            });
+        }
+    });
 });
 
 app.post("/loadComments", function(request, response) {
