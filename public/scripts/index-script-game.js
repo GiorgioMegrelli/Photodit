@@ -182,7 +182,7 @@ function getMaxCounter() {
     }
     return 0;
 }
-function setMaxCounter(val) {
+function setMaxCounter() {
     let cookie = document.cookie.trim();
     let cookies = [];
     let addCookie = true;
@@ -210,11 +210,9 @@ function setMaxCounter(val) {
     if(addMaxAge) {
         cookies.push([MAX_AGE, HALF_YEAR.toString()]);
     }
-    let newCookies = [];
-    cookies.forEach(function(elem) {
-        newCookies.push(elem.join("="));
-    });
-    document.cookie = newCookies.join(";");
+    document.cookie = cookies.map(function(elem) {
+        return elem.join("=");
+    }).join(";");
 }
 
 /* Gaming */
@@ -257,11 +255,7 @@ function showData(indexes, choice) {
     let buttons = byClass("game-choice-box");
     for(let i = 0; i<buttons.length; i++) {
         let names = NAMED_COLORS[HEX[indexes[i]]];
-        if(names.length == 1) {
-            buttons[i].innerHTML = names[0];
-        } else {
-            buttons[i].innerHTML = names.join(" / ");
-        }
+        buttons[i].innerHTML = (names.length == 1)? names[0]: names.join(" / ");
         buttons[i].style.backgroundColor = "#ECECEC";
         buttons[i].style.color = "#000000";
         buttons[i].disabled = false;

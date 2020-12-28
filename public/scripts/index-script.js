@@ -1,8 +1,10 @@
-const INTERNAL_ERR = "Internal Server Error!";
-const INCORRECT_U_P = "Incorrect Username or Password";
-const INCORRECT_P = "Incorrect Password";
-const INCORRECT_REPEAT = "Repeat Password Correctly";
-const USED_U = "Username Already Exists";
+const MESSAGES = {
+    INTERNAL_ERR: "Internal Server Error!",
+    INCORRECT_U_P: "Incorrect Username or Password",
+    INCORRECT_P: "Incorrect Password",
+    INCORRECT_REPEAT: "Repeat Password Correctly",
+    USED_USERNAME: "Username Already Exists"
+};
 
 
 function login() {
@@ -11,29 +13,23 @@ function login() {
     let output = byId("output-error");
     output.innerHTML = "";
 
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if(this.readyState == 4 && this.status == 200) {
-            let result = parseInt(this.responseText);
-            if(result == -1) {
-                console.error(INTERNAL_ERR);
-            } else if(result == 2) {
-                output.innerHTML = INCORRECT_U_P;
-            } else if(result == 1) {
-                output.innerHTML = INCORRECT_P;
-            } else if(result == 0) {
-                byId("login-form").submit();
-            }
+    Ajax("post", "/login-check", {
+        "uname": uname,
+        "password": password
+    }).then(function(responseText) {
+        let result = parseInt(responseText);
+        if(result == -1) {
+            console.error(MESSAGES.INTERNAL_ERR);
+        } else if(result == 2) {
+            output.innerHTML = MESSAGES.INCORRECT_U_P;
+        } else if(result == 1) {
+            output.innerHTML = MESSAGES.INCORRECT_P;
+        } else if(result == 0) {
+            byId("login-form").submit();
         }
-    };
-    xhttp.open("post", "/login-check", true);
-    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    let array = [["uname", uname], ["password", password]];
-    array.forEach(function(elem, i) {
-        array[i] = elem.join("=");
+    }).catch((err) => {
+        console.error(err);
     });
-    xhttp.send(array.join("&"));
 }
 
 function register() {
@@ -43,35 +39,27 @@ function register() {
     output.innerHTML = "";
 
     if(password !== password_rep) {
-        output.innerHTML = INCORRECT_REPEAT;
+        output.innerHTML = MESSAGES.INCORRECT_REPEAT;
     } else {
         let uname = byId("reg-uname").value.trim();
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if(this.readyState == 4 && this.status == 200) {
-                let result = parseInt(this.responseText);
-                if(result == -1) {
-                    console.error(INTERNAL_ERR);
-                } else if(result == 1) {
-                    output.innerHTML = USED_U;
-                } else if(result == 0) {
-                    byId("register-form").submit();
-                }
+        Ajax("post", "/register-check", {"uname": uname}).then(function(responseText) {
+            let result = parseInt(responseText);
+            if(result == -1) {
+                console.error(MESSAGES.INTERNAL_ERR);
+            } else if(result == 1) {
+                output.innerHTML = MESSAGES.USED_USERNAME;
+            } else if(result == 0) {
+                byId("register-form").submit();
             }
-        };
-        xhttp.open("post", "/register-check", true);
-        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhttp.send("uname=" + uname);
+        }).catch((err) => {
+            console.error(err);
+        });
     }
 }
 
 function showSpace(type) {
-    // true - Sign Up, false - Log In
-    if(type) {
-        byClass("log-space")[0].style.display = "none";
-        byClass("reg-space")[0].style.display = "block";
-    } else {
-        byClass("log-space")[0].style.display = "block";
-        byClass("reg-space")[0].style.display = "none";
-    }
+    // true = Sign Up, false = Log In
+    byClass("log-space")[0].style.display = (type)? "none": "block";
+    byClass("reg-space")[0].style.display = (type)? "block": "none";
+    byId("output-error").innerHTML = "";
 }
