@@ -29,6 +29,10 @@
 
 
 ### Setup
+#### Clone project:
+```
+git clone --depth 1 https://github.com/GiorgioMegrelli/Photodit.git
+```
 #### Download packages:
 ```
 npm install

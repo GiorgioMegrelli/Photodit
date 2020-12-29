@@ -499,7 +499,18 @@ function getFollowingsNumOf(id, caller) {
 }
 
 function searchByUsernames(substr, caller) {
-    const sql = "SELECT USER_ID, USERNAME FROM " + tables.users + " WHERE USERNAME LIKE ?";
+    const sql = [
+        "SELECT u.username, u.user_id, u.CREATE_DATE, sub.photoid, sub.likenum",
+        "FROM users u",
+        "LEFT JOIN (",
+            "SELECT p.photo_id AS photoid, p.AUTHOR_ID AS userid, count(l.like_date) AS likenum",
+            "FROM photos p",
+            "RIGHT JOIN likes l ON p.PHOTO_ID = l.PHOTO_ID",
+            "GROUP BY p.photo_id",
+        ") sub ON u.user_id = sub.userid",
+        "WHERE u.username LIKE ?",
+        "ORDER BY sub.likenum DESC"
+    ].join(" ");
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);
@@ -511,7 +522,14 @@ function searchByUsernames(substr, caller) {
 }
 
 function searchByPhotoDescs(substr, caller) {
-    const sql = "SELECT PHOTO_ID, AUTHOR_ID, DESCRIPTION FROM " + tables.photos + " WHERE DESCRIPTION LIKE ?";
+    const sql = [
+        "SELECT p.photo_id, p.DESCRIPTION, count(l.like_date) AS likenum",
+        "FROM photos p",
+        "RIGHT JOIN likes l ON p.PHOTO_ID = l.PHOTO_ID",
+        "WHERE p.DESCRIPTION LIKE ?",
+        "GROUP BY p.photo_id",
+        "ORDER BY likenum desc",
+    ].join(" ");
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);
@@ -523,7 +541,8 @@ function searchByPhotoDescs(substr, caller) {
 }
 
 function searchByComments(substr, caller) {
-    const sql = "SELECT PHOTO_ID, COMMENT FROM " + tables.comments + " WHERE COMMENT LIKE ?";
+    const sql = "SELECT PHOTO_ID, COMMENT FROM " + tables.comments
+    + " WHERE COMMENT LIKE ? ORDER BY COMMENT_DATE DESC";
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);

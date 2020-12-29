@@ -1,24 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Username</title>
+    <title>My Profile - <%= USERNAME %> | Photodit</title>
+    <meta charset="utf-8">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link href="../public/styles/reset-css.css" rel="stylesheet">
+    <link href="../public/fonts/fonts.css" rel="stylesheet">
+    <link href="../public/styles/user-css.css" rel="stylesheet">
+    <link href="../public/styles/profile-css.css" rel="stylesheet">
+    <link href="../public/styles/search-css.css" rel="stylesheet">
 </head>
 <body>
+    <header>
+        <div class="logo-link">
+            <a href="/profile">Photodit</a>
+        </div>
+        <div>
+            <form action="/search" method="GET">
+                <input type="search" name="search" placeholder="Search...">
+                <input type="submit" value="Search">
+            </form>
+        </div>
+    </header>
 
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="imgpath" accept="image/png, image/gif, image/jpeg">
-        <p>
-            <label for="upload_in_vt_1">Public</label>
-            <input type="radio" name="visiType" value="1" id="upload_in_vt_1">
-            <label for="upload_in_vt_2">Protected</label>
-            <input type="radio" name="visiType" value="2" id="upload_in_vt_2">
-            <label for="upload_in_vt_3">Private</label>
-            <input type="radio" name="visiType" value="3" id="upload_in_vt_3" checked>
-        </p>
-        <textarea name="desc" maxlength="512" placeholder="Image Description"></textarea>
-        <br>
-        <input type="submit">
-    </form>
+    <div class="front-data">
+        <div class="front-data-followings">
+            <button onclick="closeFList1()">Close</button>
+            <div id="f-d-followings"></div>
+        </div>
+        <div class="front-data-followers">
+            <button onclick="closeFList2()">Close</button>
+            <div id="f-d-followers"></div>
+        </div>
+        <div class="front-data-update-window">
+            <button onclick="showUpdateWindow(false)">Close</button>
+            <form action="/updateProfile" method="POST" class="front-data-update-window-form">
+                <label for="new_email">Email</label>
+                <input value="<%= (EMAIL === null)? '': EMAIL %>" type="text" name="new_email" id="new_email">
+                <label for="new_fmail">First Name</label>
+                <input value="<%= (FNAME === null)? '': FNAME %>" type="text" name="new_fmail" id="new_fmail">
+                <label for="new_lmail">Last Name</label>
+                <input value="<%= (LNAME === null)? '': LNAME %>" type="text" name="new_lmail" id="new_lmail">
+                <label for="new_status">Status</label>
+                <textarea maxlength="256" name="new_status" id="new_status"><%= (STATUS === null)? "": STATUS %></textarea>
+                <input type="submit" value="Update">
+            </form>
+            <button onclick="copyURL(<%= USER_ID %>)" class="front-data-update-window-copy-url">Copy your URL</button>
+        </div>
+    </div>
 
+    <div class="center">
+        <div class="user-username">
+            <%
+            let username_back = ["background-color: ", background, ";"].join("");
+            %>
+            <div class="user-username-text-wrap" style="<%= username_back %>">
+                <p class="user-username-text"><%= USERNAME %></p>
+            </div>
+        </div>
+        <div class="user-info">
+            <button class="user-info-update-profile" onclick="showUpdateWindow(true)">Update Profile</button>
+            <div class="user-info-wrapper">
+                <div class="user-info-status">
+                    <span class="user-info-status-span">&quot;<%= STATUS %>&quot;</span>
+                    <p class="user-info-status-p" onclick="closeShowStatus()">Close Status</p>
+                </div>
+                <div class="user-info-personal">
+                    <p class="user-info-personal-p">
+                        <i class="material-icons">person</i> <%= FULLNAME %>
+                    </p>
+                    <p class="user-info-personal-p">
+                        <i class="material-icons">email</i> <span title="Doubleclick to copy Email" id="copy-email" ondblclick="copyEmail()"><%= EMAIL %></span>
+                    </p>
+                </div>
+                <p id="u-i-personal-button" onclick="closePInfo(true)">Close Personal Information</p>
+            </div>
+            <div class="number-data">
+                <div class="number-data-1">
+                    <p title="Your Followers" onclick="showFollowings()">
+                        <span id="num-data-followings">0</span> Followings
+                    </p>
+                    <p title="Your Followings" onclick="showFollowers()">
+                        <span id="num-data-followers">0</span> Followers
+                    </p>
+                </div>
+                <div class="number-data-2">
+                    <p title="All number of your Photos"><span id="num-data-photos">0</span> Photos</p>
+                    <p title="All number of Likes on your Photos"><span id="num-data-likes">0</span> Likes</p>
+                    <p title="All number of Comments on your Photos"><span id="num-data-comments">0</span> Comments</p>
+                </div>
+            </div>
+        </div>
+        <div class="image-uploading">
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="image-uploading-div">
+                    <input type="file" name="imgpath" accept="image/png, image/gif, image/jpg, image/jpeg">
+                    <p style="margin-top: 10px;">
+                        <label for="upload_vt_select">Visibility Type: </label>
+                        <select name="visiType" id="upload_vt_select">
+                            <option value="1" id="upload_in_vt_1">Public</option>
+                            <option value="2" id="upload_in_vt_2">Protected</option>
+                            <option value="3" id="upload_in_vt_3">Private</option>
+                        </select>
+                    </p>
+                    <input type="submit" value="Upload">
+                </div>
+                <textarea name="desc" maxlength="512" placeholder="Image Description"></textarea>
+            </form>
+        </div>
+        <div class="images-list">
+            <div id="images-list"></div>
+            <div class="images-list-bottom">
+                <div class="image-pre-loader"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/scripts/helper-script.js"></script>
+    <script src="../public/scripts/user-script.js"></script>
+    <script src="../public/scripts/profile-script.js"></script>
+    <script>
+        window.onload = function() {
+            fillNumberData1();
+            fillNumberData2();
+            getPhotos();
+        };
+    </script>
 </body>
 </html>

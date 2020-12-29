@@ -127,6 +127,7 @@ app.get("/profile", function(request, response) {
             if(arr.length > 0) {
                 result.FULLNAME = arr.join(", ");
             }
+            result.background = createImg(result.CREATE_DATE.toString());
             response.render("profile", result);
         }
     });
@@ -626,15 +627,34 @@ app.post("/like", function(request, response) {
     });
 });
 
-app.get("/search/:searchStr", function(request, response) {
-    // TODO
-    const searchStr = request.params.searchStr;
+app.get("/search", function(request, response) {
+    const searchStr = request.query.search;
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
         return;
     }
-    response.render("search");
+    database.searchByUsernames(searchStr, function(results1) {
+        if(results1 === undefined) {
+            results1 = [];
+        }
+        database.searchByPhotoDescs(searchStr, function(results2) {
+            if(results2 === undefined) {
+                results2 = [];
+            }
+            database.searchByComments(searchStr, function(results3) {
+                if(results3 === undefined) {
+                    results3 = [];
+                }
+                let fullResults = {
+                    usernames: results1,
+                    descriptions: results2,
+                    comments: results3
+                };
+                response.render("search", fullResults);
+            });
+        });
+    });
 });
 
 

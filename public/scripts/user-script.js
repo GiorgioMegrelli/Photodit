@@ -116,7 +116,7 @@ function closeFList2() {
 }
 
 function closeShowStatus() {
-    let none_equal = (status.display.trim().toLowerCase() === "none");
+    let none_equal = (byClass("user-info-status-span")[0].style.display.trim().toLowerCase() === "none");
     byClass("user-info-status-span")[0].style.display = (none_equal)? "block": "none";
     byClass("user-info-status-p")[0].innerHTML = (none_equal)? "Close Status": "Show Status";
 }

@@ -419,6 +419,13 @@ header a {
     padding: 10px 10px;
 }
 
+.comment-author-tag {
+    position: relative;
+    top: 4px;
+    font-size: 22px;
+    color: rgba(5, 122, 95, 1);
+}
+
 .overflow-content {
     width: 400px;
     height: 500px;
