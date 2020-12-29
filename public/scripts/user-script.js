@@ -35,6 +35,9 @@ function getPhotos() {
                 let ratio = this.width/this.height;
                 this.className = ["images-list-item-img_", (ratio == 1)? 0: ((ratio < 1)? -1: 1)].join("");
             };
+            img.onerror = function() {
+                this.parentNode.style.display = "none";
+            };
             let imgLikeNum = createDiv("images-list-item-like-num");
             let imgLikeNum_div1 = createDiv();
             let imgLikeNum_div2 = createDiv();

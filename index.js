@@ -97,7 +97,7 @@ app.post("/register", function(request, response) {
     const username = request.body.uname.trim();
     const password = request.body.password.trim();
     database.addUser(username, password, function(result) {
-        if(result < 0) {
+        if(result === undefined || result < 0) {
             response.redirect("/");
         } else {
             request.session.thisUserId = result;
@@ -110,9 +110,37 @@ app.get("/profile", function(request, response) {
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
-    } else {
-        response.render("profile", {});
+        return;
     }
+    database.getUser(currentUser, function(result) {
+        if(result === undefined) {
+            response.redirect("/");
+        } else {
+            result.FULLNAME = null;
+            let arr = [];
+            if(result.LNAME !== null) {
+                arr.push(result.LNAME);
+            }
+            if(result.FNAME !== null) {
+                arr.push(result.FNAME);
+            }
+            if(arr.length > 0) {
+                result.FULLNAME = arr.join(", ");
+            }
+            response.render("profile", result);
+        }
+    });
+});
+
+app.post("/updateProfile", function(request, response) {
+    const currentUser = request.session.thisUserId;
+    if(currentUser === undefined) {
+        response.redirect("/");
+        return;
+    }
+    database.updateProfile(currentUser, request.body, function() {
+        response.redirect("/profile");
+    });
 });
 
 app.post("/upload", upload.single("imgpath"), function(request, response) {
@@ -126,17 +154,22 @@ app.post("/upload", upload.single("imgpath"), function(request, response) {
     const visiType = parseInt(request.body.visiType);
     const desc = request.body.desc;
     database.addPhoto(currentUser, originName, desc, visiType, function(result) {
-        fs.renameSync(filePath, destination + result, function(err) {
+        if(result === undefined) {
+            response.redirect("/profile");
+            return;
+        }
+        fs.rename(filePath, destination + result.filename, function(err) {
             if(err) {
                 console.log(err);
             }
+            response.redirect("/image/" + result.id);
         });
     });
 });
 
 app.get("/user/:userId", function(request, response) {
-    const userId = request.params.userId;
-    const currentUser = request.session.thisUserId;
+    let userId = request.params.userId;
+    let currentUser = request.session.thisUserId;
     if(currentUser == undefined) {
         response.redirect("/");
     } else if(userId == currentUser) {
@@ -148,14 +181,14 @@ app.get("/user/:userId", function(request, response) {
             } else {
                 database.isFollower(currentUser, userId, function(isFollower) {
                     result.FULLNAME = null;
-                    if(result.FNAME !== null || result.LNAME !== null) {
-                        let arr = [];
-                        if(result.LNAME !== null) {
-                            arr.push(result.LNAME);
-                        }
-                        if(result.FNAME !== null) {
-                            arr.push(result.FNAME);
-                        }
+                    let arr = [];
+                    if(result.LNAME !== null) {
+                        arr.push(result.LNAME);
+                    }
+                    if(result.FNAME !== null) {
+                        arr.push(result.FNAME);
+                    }
+                    if(arr.length > 0) {
                         result.FULLNAME = arr.join(", ");
                     }
                     result.FULLNAME_CNT = 0;
@@ -175,14 +208,20 @@ app.get("/user/:userId", function(request, response) {
 });
 
 app.post("/getFullNumbersPLC", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
+    let userId = request.body.userId;
+    let currentUser = request.session.thisUserId;
+    let isCurrentUser = false;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
     }
-    database.getLikesOf(userId, function(likeNum) {
-        database.getCommentsOf(userId, function(comNum) {
-            database.getPhotosNumOf(userId, function(imgNum) {
+    if(userId == -1) {
+        userId = currentUser;
+        isCurrentUser = true;
+    }
+    database.getLikesOf(userId, isCurrentUser, function(likeNum) {
+        database.getCommentsOfUser(userId, isCurrentUser, function(comNum) { // TODO
+            database.getPhotosNumOf(userId, isCurrentUser, function(imgNum) {
                 response.send({
                     imageNum: imgNum,
                     likeNum: likeNum,
@@ -194,10 +233,18 @@ app.post("/getFullNumbersPLC", function(request, response) {
 });
 
 app.post("/getFullNumbersFF", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId)) {
+        response.redirect("/profile");
+        return;
+    }
+    if(userId == -1) {
+        userId = currentUser;
     }
     database.getFollowersNumOf(userId, function(followers) {
         database.getFollowingsNumOf(userId, function(followings) {
@@ -210,58 +257,95 @@ app.post("/getFullNumbersFF", function(request, response) {
 });
 
 app.post("/getFollowers", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId) || userId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.getFollowers(userId, function(results) {
         if(results !== undefined) {
             response.send(results);
+        } else {
+            response.redirect("/profile");
         }
     });
 });
 
 app.post("/getFollowings", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId) || userId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.getFollowings(userId, function(results) {
         if(results !== undefined) {
             response.send(results);
+        } else {
+            response.redirect("/profile");
         }
     });
 });
 
 app.post("/followUser", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
-    if(currentUser === undefined) {
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
+    if(currentUser === undefined || currentUser == userId) {
         response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId) || userId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.isFollower(currentUser, userId, function(isfollower) {
         if(isfollower) {
             database.unfollowUser(currentUser, userId, function(result) {
-                response.send({result: result, type: -1});
+                if(result) {
+                    response.send({result: result, type: -1});
+                } else {
+                    response.redirect("/profile");
+                }
             });
         } else {
             database.followUser(currentUser, userId, function(result) {
-                response.send({result: result, type: 1});
+                if(result) {
+                    response.send({result: result, type: 1});
+                } else {
+                    response.redirect("/profile");
+                }
             });
         }
     });
 });
 
 app.post("/getPhotos", function(request, response) {
-    const userId = request.body.userId;
-    const currentUser = request.session.thisUserId;
-    if(currentUser === undefined) {
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
+    let isCurrentUser = false;
+    if(currentUser === undefined || currentUser == userId) {
         response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId)) {
+        response.redirect("/profile");
+        return;
+    }
+    if(userId == -1) {
+        userId = currentUser;
+        isCurrentUser = true;
     }
     database.isFollower(currentUser, userId, function(isfollower) {
-        database.getPhotosOf(userId, isfollower, function(result) {
+        database.getPhotosOf(userId, isfollower, isCurrentUser, function(result) {
             if(result !== undefined) {
                 for(let i = 0; i<result.length; i++) {
                     result[i].src = toImageFullPath(result[i].PHOTO_ID, result[i].FMT_ID);
@@ -272,13 +356,29 @@ app.post("/getPhotos", function(request, response) {
     });
 });
 
+app.post("/getAllPhotos", function(request, response) {
+    let userId = parseInt(request.body.userId);
+    let currentUser = request.session.thisUserId;
+    if(currentUser === undefined || currentUser == userId) {
+        response.redirect("/");
+        return;
+    }
+    if(userId === undefined || isNaN(userId) || userId == -1) {
+        response.redirect("/profile");
+        return;
+    }
+    database.getAllPhotosOf(currentUser, function(results) {
+        response.send(results);
+    });
+});
+
 app.get("/image/:imageId", function(request, response) {
+    const imageId = parseInt(request.params.imageId);
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
         return;
     }
-    const imageId = request.params.imageId;
     const rtypes = {
         RETURN_ERR: -1,
         RETURN_FALSE: 0,
@@ -287,25 +387,25 @@ app.get("/image/:imageId", function(request, response) {
     let returnVal = {};
     returnVal.title = "";
     returnVal.msg = "";
-    if(isNaN(imageId)) {
+    if(isNaN(imageId) || imageId == -1) {
         returnVal.rtype = rtypes.RETURN_ERR;
         returnVal.msg = "Invalid URL of Image";
         returnVal.title = returnVal.msg;
         returnVal.vars = rtypes;
         response.render("image", returnVal);
     } else {
-        const id = parseInt(imageId);
         const visibilities = {
             PUBLIC: 1,
             PROTECTED: 2,
             PRIVATE: 3
         };
         returnVal.vars = Object.assign(rtypes, visibilities);
-        database.getPhoto(id, function(result) {
+        database.getPhoto(imageId, function(result) {
             if(result === undefined) {
                 returnVal.rtype = rtypes.RETURN_FALSE;
-                returnVal.msg = "Image with this ID: " + id + " - doesn't Exist";
+                returnVal.msg = "Image with this ID: " + imageId + " - doesn't Exist";
                 returnVal.title = returnVal.msg;
+                response.render("image", returnVal);
             } else {
                 const typeId = result.TYPE_ID;
                 returnVal.vtypeId = typeId;
@@ -353,11 +453,16 @@ app.get("/image/:imageId", function(request, response) {
 });
 
 app.post("/changeVisibility", function(request, response) {
-    const imageId = request.body.imageId;
+    const imageId = parseInt(request.body.imageId);
     const vtypeId = request.body.vtypeId;
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.changeVisibility(imageId, vtypeId, function(result) {
         response.send({result: result});
@@ -369,6 +474,11 @@ app.post("/deleteImage", function(request, response) {
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.deleteImgLikes(imageId, function(result1) {
         if(result1) {
@@ -377,21 +487,36 @@ app.post("/deleteImage", function(request, response) {
                     database.deleteImage(imageId, function(result3) {
                         if(result3) {
                             response.redirect("/profile");
+                        } else {
+                            response.redirect("/image/" + imageId);
                         }
                     });
+                } else {
+                    response.redirect("/image/" + imageId);
                 }
             });
+        } else {
+            response.redirect("/image/" + imageId);
         }
     });
 });
 
 app.post("/loadComments", function(request, response) {
-    const imageId = request.body.imageId;
+    const imageId = parseInt(request.body.imageId);
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.getComments(imageId, function(results) {
+        if(results === undefined) {
+            response.redirect("/profile");
+            return;
+        }
         for(let i = 0; i<results.length; i++) {
             results[i].COMMENT_DATE = results[i].COMMENT_DATE.toString();
             results[i].IS_AUTHOR = (results[i].USER_ID == currentUser);
@@ -410,9 +535,14 @@ app.post("/addComment", function(request, response) {
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
     }
     const comment = request.body.comment;
     const imageId = request.body.imageId;
+    if(imageId == -1) {
+        response.redirect("/profile");
+        return;
+    }
     database.addComment(currentUser, imageId, comment, function(result) {
         response.send({result: (result !== undefined)});
     });
@@ -423,6 +553,7 @@ app.post("/deleteComment", function(request, response) {
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
     }
     let id = parseInt(decrypt(encyptedId).trim());
     database.deleteComment(id, function(result) {
@@ -431,10 +562,15 @@ app.post("/deleteComment", function(request, response) {
 });
 
 app.post("/countLikes", function(request, response) {
-    const imageId = request.body.imageId;
+    const imageId = parseInt(request.body.imageId);
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.countLikes(imageId, function(count) {
         database.hasLiked(imageId, currentUser, function(liked) {
@@ -447,21 +583,35 @@ app.post("/countLikes", function(request, response) {
 });
 
 app.post("/getLikes", function(request, response) {
-    const imageId = request.body.imageId;
+    const imageId = parseInt(request.body.imageId);
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.getLikes(imageId, function(results) {
+        if(results === undefined) {
+            response.redirect("/profile");
+            return;
+        }
         response.send(results);
     });
 });
 
 app.post("/like", function(request, response) {
-    const imageId = request.body.imageId;
+    const imageId = parseInt(request.body.imageId);
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
+    }
+    if(imageId === undefined || isNaN(imageId) || imageId == -1) {
+        response.redirect("/profile");
+        return;
     }
     database.hasLiked(imageId, currentUser, function(liked) {
         if(liked) {
@@ -477,10 +627,12 @@ app.post("/like", function(request, response) {
 });
 
 app.get("/search/:searchStr", function(request, response) {
+    // TODO
     const searchStr = request.params.searchStr;
     const currentUser = request.session.thisUserId;
     if(currentUser === undefined) {
         response.redirect("/");
+        return;
     }
     response.render("search");
 });

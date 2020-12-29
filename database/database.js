@@ -59,6 +59,7 @@ function addUser(uname, password, caller) {
     connection.query(sql, [username, usernameUpper, hashpass], function(err, result) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(result.insertId);
         }
@@ -71,6 +72,7 @@ function getIdByUsername(uname, caller) {
     connection.query(sql, [username], function(err, rows) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else if(rows.length > 0) {
             caller(rows[0].USER_ID);
         } else {
@@ -85,6 +87,26 @@ function checkUsername(uname, caller) {
             result = -1;
         }
         caller(result > 0);
+    });
+}
+
+function updateProfile(userId, updateParams, caller) {
+    const sql = "UPDATE " + tables.users
+    + " SET EMAIL = ?, FNAME = ?, LNAME = ?, STATUS = ? WHERE USER_ID = ?";
+    let params = [
+        updateParams.new_email,
+        updateParams.new_fmail,
+        updateParams.new_lmail,
+        updateParams.new_status,
+        userId
+    ];
+    connection.query(sql, params, function(err) {
+        if(err) {
+            console.log(err);
+            caller(false);
+            return;
+        }
+        caller(true);
     });
 }
 
@@ -110,6 +132,7 @@ function getUser(id, caller) {
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             result[0].CREATE_DATE = result[0].CREATE_DATE.toString();
             delete result[0].PASSWORD;
@@ -125,9 +148,12 @@ function addPhoto(userId, ofilename, desc, type, caller) {
     connection.query(sql, [userId, imgExtentions[extention], desc, type], function(err, result) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
-            const newName = result.insertId + "." + extention;
-            caller(newName);
+            caller({
+                id: result.insertId,
+                filename: result.insertId + "." + extention
+            });
         }
     });
 }
@@ -139,21 +165,25 @@ function getPhoto(id, caller) {
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else if(result !== undefined && result.length > 0) {
             result[0].UPLOAD_DATE = result[0].UPLOAD_DATE.toString();
             caller(result[0]);
+        } else {
+            caller(undefined);
         }
     });
 }
 
-function getPhotosOf(id, isfollower, caller) {
+function getPhotosOf(id, isfollower, isCurrentUser, caller) {
     const sql = [
         "SELECT p.*, COUNT(l.liker) AS LIKE_NUM FROM ",
         tables.photos,
         " p LEFT JOIN ",
         tables.likes,
         " l ON p.PHOTO_ID = l.PHOTO_ID ",
-        "WHERE p.AUTHOR_ID = ? AND (p.TYPE_ID = ? OR p.TYPE_ID = ?) ",
+        "WHERE p.AUTHOR_ID = ? ",
+        (isCurrentUser)? "":"AND (p.TYPE_ID = ? OR p.TYPE_ID = ?) ",
         "GROUP BY p.PHOTO_ID ",
         "ORDER BY UPLOAD_DATE DESC"
     ].join("");
@@ -161,19 +191,40 @@ function getPhotosOf(id, isfollower, caller) {
     connection.query(sql, params, function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
     });
 }
 
-function getPhotosNumOf(id, caller) {
+function getAllPhotosOf(id, caller) {
+    const sql = [
+        "SELECT p.*, COUNT(l.liker) AS LIKE_NUM FROM ",
+        tables.photos,
+        " p LEFT JOIN ",
+        tables.likes,
+        " l ON p.PHOTO_ID = l.PHOTO_ID WHERE p.AUTHOR_ID = ? ",
+        "GROUP BY p.PHOTO_ID ORDER BY UPLOAD_DATE DESC"
+    ].join("");
+    connection.query(sql, [id], function(err, results) {
+        if(err) {
+            console.log(err);
+            caller(undefined);
+        } else {
+            caller(results);
+        }
+    });
+}
+
+function getPhotosNumOf(id, isCurrentUser, caller) {
     const sql = "SELECT COUNT(*) AS RESULT FROM " + tables.photos
-    + " WHERE AUTHOR_ID = ? AND (TYPE_ID = ? OR TYPE_ID = ?)";
+    + " WHERE AUTHOR_ID = ?" + ((isCurrentUser)? "": " AND (TYPE_ID = ? OR TYPE_ID = ?)");
     const params = [id, visibilities.PUBLIC,  visibilities.PROTECTED];
     connection.query(sql, params, function(err, results) {
         if(err) {
             console.log(err);
+            caller(0);
         } else {
             caller(results[0].RESULT);
         }
@@ -192,7 +243,27 @@ function changeVisibility(image_id, vtype, caller) {
     });
 }
 
-function getLikesOf(id, caller) {
+function getLikesOf(id, isCurrentUser, caller) {
+    const sql = [
+        "SELECT COUNT(*) AS RESULT FROM ",
+        tables.likes,
+        " l LEFT JOIN ",
+        tables.photos,
+        " p ON l.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?",
+        (isCurrentUser)? "":" AND (p.TYPE_ID = ? OR p.TYPE_ID = ?)"
+    ].join("");
+    const params = [id, visibilities.PUBLIC,  visibilities.PROTECTED];
+    connection.query(sql, params, function(err, result) {
+        if(err) {
+            console.log(err);
+            caller(0);
+        } else {
+            caller(result[0].RESULT);
+        }
+    });
+}
+
+function getAllLikesOf(id, caller) {
     const sql = "SELECT COUNT(*) AS RESULT FROM "
     + tables.likes + " l LEFT JOIN " + tables.photos
     + " p ON l.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?";
@@ -206,11 +277,17 @@ function getLikesOf(id, caller) {
     });
 }
 
-function getCommentsOf(id, caller) {
-    const sql = "SELECT COUNT(*) AS RESULT FROM "
-    + tables.comments + " c LEFT JOIN " + tables.photos
-    + " p ON c.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?";
-    connection.query(sql, [id], function(err, result) {
+function getCommentsOfUser(id, isCurrentUser, caller) {
+    const sql = [
+        "SELECT COUNT(*) AS RESULT FROM ",
+        tables.comments,
+        " c LEFT JOIN ",
+        tables.photos,
+        " p ON c.PHOTO_ID = p.PHOTO_ID WHERE p.AUTHOR_ID = ?",
+        (isCurrentUser)? "":" AND (p.TYPE_ID = ? OR p.TYPE_ID = ?)"
+    ].join("");
+    const params = [id, visibilities.PUBLIC,  visibilities.PROTECTED];
+    connection.query(sql, params, function(err, result) {
         if(err) {
             console.log(err);
             caller(0);
@@ -245,20 +322,7 @@ function hasLiked(id, userId, caller) {
     });
 }
 
-function sendLike(id, userId, caller) {
-    const sql = "INSERT INTO " + tables.likes + " (LIKER, PHOTO_ID) VALUES (?, ?)";
-    connection.query(sql, [userId, id], function(err, rows) {
-        if(err) {
-            console.log(err);
-            caller(false);
-            return;
-        }
-        caller(true);
-    });
-}
-
-function sendUnlike(id, userId, caller) {
-    const sql = "DELETE FROM " + tables.likes + " WHERE LIKER = ? AND PHOTO_ID = ?";
+function _sendLike_Unlike(sql, id, userId, caller) {
     connection.query(sql, [userId, id], function(err) {
         if(err) {
             console.log(err);
@@ -269,6 +333,20 @@ function sendUnlike(id, userId, caller) {
     });
 }
 
+function sendLike(id, userId, caller) {
+    const sql = "INSERT INTO " + tables.likes + " (LIKER, PHOTO_ID) VALUES (?, ?)";
+    _sendLike_Unlike(sql, id, userId, function(result) {
+        caller(result);
+    });
+}
+
+function sendUnlike(id, userId, caller) {
+    const sql = "DELETE FROM " + tables.likes + " WHERE LIKER = ? AND PHOTO_ID = ?";
+    _sendLike_Unlike(sql, id, userId, function(result) {
+        caller(result);
+    });
+}
+
 function getLikes(id, caller) {
     const sql = "SELECT u.USER_ID, u.USERNAME, l.* FROM "
     + tables.likes + " l LEFT JOIN " + tables.users
@@ -276,6 +354,7 @@ function getLikes(id, caller) {
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
             return;
         }
         caller(results);
@@ -301,6 +380,7 @@ function getComments(id, caller) {
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
             return;
         }
         caller(results);
@@ -343,9 +423,8 @@ function isFollower(follower, following, caller) {
     });
 }
 
-function followUser(follower, following, caller) {
-    const sql = "INSERT INTO " + tables.followings + " (FOLLOWER, FOLLOWING) VALUES (?, ?)";
-    connection.query(sql, [follower, following], function(err, result) {
+function _followUser(sql, follower, following, caller) {
+    connection.query(sql, [follower, following], function(err) {
         if(err) {
             console.log(err);
             caller(false);
@@ -355,15 +434,17 @@ function followUser(follower, following, caller) {
     });
 }
 
+function followUser(follower, following, caller) {
+    const sql = "INSERT INTO " + tables.followings + " (FOLLOWER, FOLLOWING) VALUES (?, ?)";
+    _followUser(sql, follower, following, function(result) {
+        caller(result);
+    });
+}
+
 function unfollowUser(follower, following, caller) {
     const sql = "DELETE FROM " + tables.followings + " WHERE FOLLOWER = ? AND FOLLOWING = ?";
-    connection.query(sql, [follower, following], function(err, result) {
-        if(err) {
-            console.log(err);
-            caller(false);
-        } else {
-            caller(true);
-        }
+    _followUser(sql, follower, following, function(result) {
+        caller(result);
     });
 }
 
@@ -373,6 +454,7 @@ function getFollowers(id, caller) {
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
@@ -385,6 +467,7 @@ function getFollowings(id, caller) {
     connection.query(sql, [id], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
@@ -396,6 +479,7 @@ function getFollowersNumOf(id, caller) {
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
+            caller(0);
         } else {
             caller(result[0].RESULT);
         }
@@ -407,6 +491,7 @@ function getFollowingsNumOf(id, caller) {
     connection.query(sql, [id], function(err, result) {
         if(err) {
             console.log(err);
+            caller(0);
         } else {
             caller(result[0].RESULT);
         }
@@ -418,6 +503,7 @@ function searchByUsernames(substr, caller) {
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
@@ -429,6 +515,7 @@ function searchByPhotoDescs(substr, caller) {
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
@@ -440,6 +527,7 @@ function searchByComments(substr, caller) {
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);
+            caller(undefined);
         } else {
             caller(results);
         }
@@ -484,38 +572,114 @@ function deleteImage(image_id, caller) {
 
 
 module.exports = {
+     // Add new User
     addUser: addUser,
+
+    // Get User's Id by their Username
     getIdByUsername: getIdByUsername,
+
+    // Check if Username exists
     checkUsername: checkUsername,
+
+    // Update Profile of User
+    updateProfile: updateProfile,
+
+    // Check if Password is correct
     checkPassword: checkPassword,
+
+    // Returns information about User
     getUser: getUser,
+
+    // Add Image
     addPhoto: addPhoto,
+
+    // Return information about Image
     getPhoto: getPhoto,
+
+    // Get Public and Protected Images
     getPhotosOf: getPhotosOf,
+
+    // Get Images of all type
+    getAllPhotosOf: getAllPhotosOf,
+
+    // Get number of Public and Protected Images
     getPhotosNumOf: getPhotosNumOf,
+
+    // Change visibility of Image
     changeVisibility: changeVisibility,
+
+    // Get number of Likes on Public and Protected Images of User
     getLikesOf: getLikesOf,
-    getCommentsOf: getCommentsOf,
+
+    // Get number of Likes on all Images of User
+    getAllLikesOf: getAllLikesOf,
+
+    // get number of all Comments of User
+    getCommentsOfUser: getCommentsOfUser,
+
+    // Get number of Likes on Image
     countLikes: countLikes,
+
+    // Check if User has Liked the Image
     hasLiked: hasLiked,
+
+    // Likes Image if User has not Liked it yet
     sendLike: sendLike,
+
+    // Unlikes Image if User has Liked it
     sendUnlike: sendUnlike,
+
+    // List of Likes on Image
     getLikes: getLikes,
+
+    // Return number of Comments on Image
     countComments: countComments,
+
+    // Return Comments on Image
     getComments: getComments,
+
+    // Add Comment on Image
     addComment: addComment,
+
+    // Delete Comment on Image
     deleteComment: deleteComment,
+
+    // Check if the User is Follower of other User
     isFollower: isFollower,
+
+    // Follow User if they haven't been Followed yet
     followUser: followUser,
+
+    // Unfollow User if they have been Followed
     unfollowUser: unfollowUser,
+
+    // Get Followers of User
     getFollowers: getFollowers,
+
+    // Get Followings of User
     getFollowings: getFollowings,
+
+    // Get number of Followers of User
     getFollowersNumOf: getFollowersNumOf,
+
+    // Get number of Followings of User
     getFollowingsNumOf: getFollowingsNumOf,
+
+    // Seach by Usernames
     searchByUsernames: searchByUsernames,
+
+    // Seach by Description of Images
     searchByPhotoDescs: searchByPhotoDescs,
+
+    // Seach by Comments on Images
     searchByComments: searchByComments,
+
+    // Delete Likes on Image
     deleteImgLikes: deleteImgLikes,
+
+    // Delete Comments on Image
     deleteImgComments: deleteImgComments,
+
+    // Delete Image
     deleteImage: deleteImage
 };
