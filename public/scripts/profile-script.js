@@ -3,10 +3,9 @@ function showUpdateWindow(bool) {
     byClass("user-info-update-profile")[0].disabled = bool;
 }
 
-const localhost = "http://localhost:8089/user/";
-
 function copyURL(uid) {
-    var textArea = createElement("textarea");
+    let localhost = "http://localhost:8089/user/";
+    let textArea = createElement("textarea");
     textArea.value = localhost + uid;
     document.body.appendChild(textArea);
     textArea.select();

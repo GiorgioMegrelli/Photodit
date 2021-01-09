@@ -1,0 +1,34 @@
+#search-input-gl {
+    display: grid;
+    grid-template-columns: 200px 80px;
+    gap: 10px;
+    margin: 0 auto;
+    position: relative;
+    top: 16px;
+    width: 280px;
+    height: 30px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#search-input-gl-input {
+    height: 100%;
+    border: none;
+    outline: none;
+}
+
+#search-input-gl-button {
+    height: 100%;
+    border: 2px solid white;
+    color: white;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    background-color: rgb(5, 122, 95);
+    font-size: 17px;
+}
+
+#search-input-gl-button:hover {
+    border: 2px solid white;
+    color: rgb(5, 122, 95);
+    background-color: white;
+}

@@ -638,6 +638,9 @@ app.get("/search", function(request, response) {
         if(results1 === undefined) {
             results1 = [];
         }
+        for(let i = 0; i<results1.length; i++) {
+            results1[i].P_IMG = createImg(results1[i].CREATE_DATE);
+        }
         database.searchByPhotoDescs(searchStr, function(results2) {
             if(results2 === undefined) {
                 results2 = [];
@@ -647,9 +650,13 @@ app.get("/search", function(request, response) {
                     results3 = [];
                 }
                 let fullResults = {
+                    searchStr: searchStr,
                     usernames: results1,
+                    usernamesLen: results1.length,
                     descriptions: results2,
-                    comments: results3
+                    descriptionsLen: results2.length,
+                    comments: results3,
+                    commentsLen: results3.length
                 };
                 response.render("search", fullResults);
             });

@@ -1,15 +1,92 @@
 <html>
 <head>
-    <title>Search</title>
+    <title>Search | <%= searchStr %></title>
 
     <link href="../public/styles/reset-css.css" rel="stylesheet">
     <link href="../public/fonts/fonts.css" rel="stylesheet">
     <link href="../public/styles/search-css.css" rel="stylesheet">
+    <link href="../public/styles/search-export-css.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <span>Photodit</span>
+    <header class="header-search">
+        <a href="/profile">Photodit</a>
     </header>
+
+    
+    <div class="search-center">
+        <div class="search-string">
+            <p>You looked for: <span title="<%= searchStr %>"><%= searchStr %></span></p>
+        </div>
+    
+        <div class="search-space">
+            <form id="search-input-gl" action="/search" method="GET">
+                <input id="search-input-gl-input" value="<%= searchStr %>" type="search" name="search" placeholder="Search...">
+                <input id="search-input-gl-button" type="submit" value="Search">
+            </form>
+        </div>
+    
+        <div class="search-result-list">
+            <p class="search-result-list-title">Users:</p>
+            <div class="search-result-list-container">
+            <% if(usernamesLen == 0) { %>
+                <p class="search-result-list-n-r">No Results</p>
+            <% } else {
+                for(let i = 0; i<usernamesLen; i++) {
+                    let curr = usernames[i];%>
+                    <a href="/user/<%= curr.user_id %>">
+                        <div class="search-result-list-item-1" style="background-color: <%= curr.P_IMG %>;">
+                            <p><%= curr.username %></p>
+                        </div>
+                    </a>
+            <%  } %>
+                <div class="search-result-list-upper"></div>
+            <%  } %>
+            </div>
+        </div>
+    
+    
+        <div class="search-result-list">
+            <p class="search-result-list-title">Images:</p>
+            <div class="search-result-list-container">
+            <% if(descriptionsLen == 0) { %>
+                <p class="search-result-list-n-r">No Results</p>
+            <% } else {
+                for(let i = 0; i<descriptionsLen; i++) {
+                    let curr = descriptions[i];%>
+                    <a href="/image/<%= curr.PHOTO_ID %>">
+                        <div class="search-result-list-item-2">
+                            <p><%= curr.DESCRIPTION %></p>
+                        </div>
+                    </a>
+            <%  } %>
+                <div class="search-result-list-upper"></div>
+            <%  } %>
+            </div>
+        </div>
+    
+    
+        <div class="search-result-list">
+            <p class="search-result-list-title">Comments:</p>
+            <div class="search-result-list-container">
+            <% if(commentsLen == 0) { %>
+                <p class="search-result-list-n-r">No Results</p>
+            <% } else {
+                for(let i = 0; i<commentsLen; i++) {
+                    let curr = comments[i];%>
+                    <a href="/image/<%= curr.PHOTO_ID %>">
+                        <div class="search-result-list-item-3">
+                            <p><%= curr.COMMENT %></p>
+                        </div>
+                    </a>
+            <%  } %>
+                <div class="search-result-list-upper"></div>
+            <%  } %>
+            </div>
+        </div>
+    
+        <div class="search-upper-div"></div>
+    </div>
+
 
     <script src="../public/scripts/helper-script.js"></script>
     <script src="../public/scripts/search-script.js"></script>

@@ -7,18 +7,23 @@ header {
     height: 50px;
     width: 100%;
     color: white;
-    text-align: center;
-    font-size: 32px;
-    font-family: 'SansitaSwashed', sans-serif;
     background-color: rgba(5, 122, 95, 1);
     z-index: 100;
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
-header a {
+.logo-link {
+    text-align: center;
+}
+
+.logo-link a {
+    position: relative;
+    top: 8px;
     text-decoration: none;
     color: white;
-    display: block;
-    margin-top: 6px;
+    font-size: 34px;
+    font-family: 'SansitaSwashed', sans-serif;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;

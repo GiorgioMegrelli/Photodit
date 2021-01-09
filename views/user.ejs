@@ -4,18 +4,26 @@
     <title><%= USERNAME %> | Photodit</title>
     <meta charset="utf-8">
 
+    <!-- External style resources -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+    <!-- Internal style resources -->
     <link href="../public/styles/reset-css.css" rel="stylesheet">
     <link href="../public/fonts/fonts.css" rel="stylesheet">
     <link href="../public/styles/user-css.css" rel="stylesheet">
+    <link href="../public/styles/search-export-css.css" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="logo-link">
             <a href="/profile">Photodit</a>
         </div>
-        <div></div>
+        <div>
+            <form id="search-input-gl" action="/search" method="GET">
+                <input id="search-input-gl-input" type="search" name="search" placeholder="Search...">
+                <input id="search-input-gl-button" type="submit" value="Search">
+            </form>
+        </div>
     </header>
 
     <div class="front-data">
@@ -98,12 +106,7 @@
 
     <script src="../public/scripts/helper-script.js"></script>
     <script src="../public/scripts/user-script.js"></script>
-    <script>
-        window.onload = function() {
-            fillNumberData1();
-            fillNumberData2();
-            getPhotos();
-        };
-    </script>
+    <script src="../public/scripts/user-script-2.js"></script>
+    <script src="../public/scripts/search-script.js"></script>
 </body>
 </html>

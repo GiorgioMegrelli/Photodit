@@ -500,7 +500,7 @@ function getFollowingsNumOf(id, caller) {
 
 function searchByUsernames(substr, caller) {
     const sql = [
-        "SELECT u.username, u.user_id, u.CREATE_DATE, sub.photoid, sub.likenum",
+        "SELECT u.username, u.user_id, u.CREATE_DATE",
         "FROM users u",
         "LEFT JOIN (",
             "SELECT p.photo_id AS photoid, p.AUTHOR_ID AS userid, count(l.like_date) AS likenum",
@@ -522,14 +522,7 @@ function searchByUsernames(substr, caller) {
 }
 
 function searchByPhotoDescs(substr, caller) {
-    const sql = [
-        "SELECT p.photo_id, p.DESCRIPTION, count(l.like_date) AS likenum",
-        "FROM photos p",
-        "RIGHT JOIN likes l ON p.PHOTO_ID = l.PHOTO_ID",
-        "WHERE p.DESCRIPTION LIKE ?",
-        "GROUP BY p.photo_id",
-        "ORDER BY likenum desc",
-    ].join(" ");
+    const sql = "SELECT PHOTO_ID, DESCRIPTION FROM " + tables.photos + " WHERE DESCRIPTION LIKE ?";
     connection.query(sql, ["%" + substr + "%"], function(err, results) {
         if(err) {
             console.log(err);

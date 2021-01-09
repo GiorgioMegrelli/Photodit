@@ -24,6 +24,10 @@ header {
     color: white;
     font-size: 34px;
     font-family: 'SansitaSwashed', sans-serif;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 .center {

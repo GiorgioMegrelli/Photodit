@@ -1,17 +1,18 @@
-window.onload = function() {
+window.addEventListener("load", function() {
     loadComments();
     countLikes();
     preventImgEvents();
-};
+});
 
 function preventImgEvents() {
     let imgs = byTag("img");
-    let events = ["onclick", "oncontextmenu", "ondblclick", "onmousedown", "onmouseup"];
-    events.forEach(function(event) {
+    let events = ["click", "contextmenu", "dblclick", "mousedown", "mouseup"];
+    events.forEach(function(eType) {
         for(let i = 0; i<imgs.length; i++) {
-            imgs[i][event] = function() {
+            imgs[i].addEventListener(eType, function(event) {
+                event.preventDefault();
                 return false;
-            };
+            });
         }
     });
 }
