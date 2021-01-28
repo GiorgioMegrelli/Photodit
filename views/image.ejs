@@ -15,19 +15,14 @@
     <link href="../public/styles/reset-css.css" rel="stylesheet">
     <link href="../public/fonts/fonts.css" rel="stylesheet">
     <link href="../public/styles/image-css.css" rel="stylesheet">
-    <link href="../public/styles/search-export-css.css" rel="stylesheet">
+    <link href="../public/styles/header-css.css" rel="stylesheet">
 </head>
 <body>
-    <header>
+    <header id="header">
         <div class="logo-link">
             <a href="/profile">Photodit</a>
         </div>
         <div>
-            <style>
-                #search-input-gl {
-                    top: 11px;
-                }
-            </style>
             <form id="search-input-gl" action="/search" method="GET">
                 <input id="search-input-gl-input" type="search" name="search" placeholder="Search...">
                 <input id="search-input-gl-button" type="submit" value="Search">

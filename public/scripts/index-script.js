@@ -1,3 +1,18 @@
+window.addEventListener("load", function() {
+    Ajax("post", "/isDatabaseReal").then(function(responseText) {
+        let response = (responseText.trim().toLowerCase() === "true");
+        if(!response) {
+            let alertValue = [
+                "This web application works with virtual Database"
+            ];
+            alert(alertValue.join("\n"));
+        }
+    }).catch((err) => {
+        console.error(err);
+    });
+});
+
+
 const MESSAGES = {
     INTERNAL_ERR: "Internal Server Error!",
     INCORRECT_U_P: "Incorrect Username or Password",

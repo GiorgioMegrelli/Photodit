@@ -56,11 +56,11 @@ function getUrlId() {
     let url = window.location.href || document.URL;
     let splitUrl = url.split("/");
     if(splitUrl.length <= 1) {
-        return undefined;
+        return -1;
     }
-    let imageIdStr = splitUrl[splitUrl.length - 1].trim();
-    let imageId = parseInt(imageIdStr);
-    return (isNaN(imageId))? -1: imageId;
+    let idInSplitted = splitUrl[splitUrl.length - 1].trim();
+    let idInt = parseInt(idInSplitted);
+    return (isNaN(idInt))? -1: idInt;
 }
 
 function Ajax(method, url, args = {}) {

@@ -1,5 +1,4 @@
 /node_modules
 /.garbage
 /upload
-/public/images
 database/cleartables.js

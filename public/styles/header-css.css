@@ -1,0 +1,49 @@
+@import url("search-export-css.css");
+
+
+#header {
+    position: fixed;
+    height: 55px;
+    width: 100%;
+    color: white;
+    background-color: rgb(5, 122, 95);
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 35% auto 100px;
+}
+
+#header .logo-link {
+    text-align: center;
+}
+
+#header .logo-link a {
+    position: relative;
+    top: 8px;
+    text-decoration: none;
+    color: white;
+    font-size: 34px;
+    font-family: 'SansitaSwashed', sans-serif;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+#log-out-form input[type=submit] {
+    position: relative;
+    outline: none;
+    background-color: rgb(5, 122, 95);
+    color: white;
+    cursor: pointer;
+    border: 2px solid white;
+    border-radius: 4px;
+    padding: 4px 7px;
+    font-size: 16px;
+    top: 12px;
+}
+
+#log-out-form input[type=submit]:hover {
+    border: 2px solid white;
+    color: rgb(5, 122, 95);
+    background-color: white;
+}
