@@ -14,17 +14,7 @@
     <link href="../public/styles/header-css.css" rel="stylesheet">
 </head>
 <body>
-    <header id="header">
-        <div class="logo-link">
-            <a href="/profile">Photodit</a>
-        </div>
-        <div>
-            <form id="search-input-gl" action="/search" method="GET">
-                <input id="search-input-gl-input" type="search" name="search" placeholder="Search...">
-                <input id="search-input-gl-button" type="submit" value="Search">
-            </form>
-        </div>
-    </header>
+    <wc-custom-header></wc-custom-header>
 
     <div class="front-data">
         <div class="front-data-followings">
@@ -105,6 +95,7 @@
     </div>
 
     <script src="../public/scripts/helper-script.js"></script>
+    <script src="../public/scripts/helper-components.js"></script>
     <script src="../public/scripts/user-script.js"></script>
     <script src="../public/scripts/user-script-2.js"></script>
     <script src="../public/scripts/search-script.js"></script>

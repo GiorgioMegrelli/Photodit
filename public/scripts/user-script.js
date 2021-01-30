@@ -27,8 +27,8 @@ function getPhotos() {
         let list = byId("images-list");
         list.innerHTML = "";
         for(let i = 0; i<result.length; i++) {
-            let imgBoxHref = createAnchor("/image/" + result[i].PHOTO_ID);
-            let imgBox = createDiv("images-list-item");
+            let imgBoxHref = createTag("a", {href: "/image/" + result[i].PHOTO_ID});
+            let imgBox = createDiv({className: "images-list-item"});
             let img = new Image();
             img.src = result[i].src;
             img.onload = function() {
@@ -38,10 +38,13 @@ function getPhotos() {
             img.onerror = function() {
                 this.parentNode.style.display = "none";
             };
-            let imgLikeNum = createDiv("images-list-item-like-num");
+            let imgLikeNum = createDiv({className: "images-list-item-like-num"});
             let imgLikeNum_div1 = createDiv();
             let imgLikeNum_div2 = createDiv();
-            imgLikeNum_div1.appendChild(createParagraph("images-list-item-like-num-p", result[i].LIKE_NUM));
+            imgLikeNum_div1.appendChild(createTag("P", {
+                className: "images-list-item-like-num-p",
+                innerHTML: result[i].LIKE_NUM
+            }));
             imgLikeNum_div2.appendChild(createIcon("material-icons material-icons-my-confgs-1", "thumb_up"));
             appendChildsArray(imgLikeNum, [imgLikeNum_div1, imgLikeNum_div2]);
             appendChildsArray(imgBox, [img, imgLikeNum]);
@@ -60,12 +63,17 @@ function showFollowings() {
         let list = byId("f-d-followings");
         list.innerHTML = "";
         if(result.length == 0) {
-            list.appendChild(createParagraph("front-data-ff-no", "No Followings"));
+            list.appendChild(createTag("P", {
+                className: "front-data-ff-no",
+                innerHTML: "No Followings"
+            }));
         } else {
             for(let i = 0; i<result.length; i++) {
-                let item = createAnchor("/user/" + result[i].ID, "front-data-follow-item");
-                item.innerHTML = result[i].USERNAME;
-                list.appendChild(item);
+                list.appendChild(createTag("a", {
+                    href: "/user/" + result[i].ID,
+                    className: "front-data-follow-item",
+                    innerHTML: result[i].USERNAME
+                }));
             }
         }
         byClass("front-data-followings")[0].style.display = "block";
@@ -80,12 +88,17 @@ function showFollowers() {
         let list = byId("f-d-followers");
         list.innerHTML = "";
         if(result.length == 0) {
-            list.appendChild(createParagraph("front-data-ff-no", "No Followings"));
+            list.appendChild(createTag("P", {
+                className: "front-data-ff-no",
+                innerHTML: "No Followings"
+            }));
         } else {
             for(let i = 0; i<result.length; i++) {
-                let item = createAnchor("/user/" + result[i].ID, "front-data-follow-item");
-                item.innerHTML = result[i].USERNAME;
-                list.appendChild(item);
+                list.appendChild(createTag("a", {
+                    href: "/user/" + result[i].ID,
+                    className: "front-data-follow-item",
+                    innerHTML: result[i].USERNAME
+                }));
             }
         }
         byClass("front-data-followers")[0].style.display = "block";
@@ -133,8 +146,9 @@ function closePInfo(bool) {
 
 function copyEmail() {
     var copyText = byId("copy-email");
-    var textArea = createElement("textarea");
-    textArea.value = copyText.innerHTML;
+    var textArea = createTag("textarea", {
+        value: copyText.innerHTML
+    });
     document.body.appendChild(textArea);
     textArea.select();
     document.execCommand("Copy");

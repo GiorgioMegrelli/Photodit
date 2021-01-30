@@ -2,10 +2,15 @@ window.addEventListener("load", function() {
     Ajax("post", "/isDatabaseReal").then(function(responseText) {
         let response = (responseText.trim().toLowerCase() === "true");
         if(!response) {
-            let alertValue = [
-                "This web application works with virtual Database"
-            ];
-            alert(alertValue.join("\n"));
+            alert([
+                "This web application works with virtual Database!",
+                "Please, use one from existing accounts.",
+                "Usernames:",
+                "• Bla",
+                "• John",
+                "• admin",
+                "All accounts have same password - \"admin\""
+            ].join("\n"));
         }
     }).catch((err) => {
         console.error(err);

@@ -6,10 +6,9 @@ window.addEventListener("load", function() {
 
 function preventImgEvents() {
     let imgs = byTag("img");
-    let events = ["click", "contextmenu", "dblclick", "mousedown", "mouseup"];
-    events.forEach(function(eType) {
+    ["click", "contextmenu", "dblclick", "mousedown", "mouseup"].forEach(function(eventType) {
         for(let i = 0; i<imgs.length; i++) {
-            imgs[i].addEventListener(eType, function(event) {
+            imgs[i].addEventListener(eventType, function(event) {
                 event.preventDefault();
                 return false;
             });
@@ -27,7 +26,10 @@ function loadComments() {
         list.innerHTML = "";
         loader.display = "none";
         if(length == 0) {
-            list.appendChild(createParagraph("not-found-coms", "Comments Not Found"));
+            list.appendChild(createTag("P", {
+                className: "not-found-coms",
+                innerHTML: "Comments Not Found"
+            }));
         } else {
             for(let i = 0; i<length; i++) {
                 list.appendChild(createCommentBox(result[i]));
@@ -45,7 +47,7 @@ function deleteComment(encrIndex) {
         Ajax("post", "/deleteComment", {"encyptedId": encrIndex}).then(function(responseText) {
             let result = JSON.parse(responseText);
             if(result.result) {
-                let box = byId(encrIndex);
+                /*let box = byId(encrIndex);
                 for(let i = 0; i<4; i++) {  // To "comments-list"
                     box = box.parentNode;
                 }
@@ -54,8 +56,12 @@ function deleteComment(encrIndex) {
                 let oldCount = parseInt(comNumber.innerHTML.trim());
                 comNumber.innerHTML = (oldCount - 1);
                 if(oldCount == 1) {
-                    byClass("comments-list")[0].appendChild(createParagraph("not-found-coms", "Comments Not Found"));
-                }
+                    byClass("comments-list")[0].appendChild(createTag("p", {
+                        className: "not-found-coms",
+                        innerHTML: "Comments Not Found"
+                    }));
+                }*/
+                loadComments();
             }
         }).catch((err) => {
             console.error(err);
@@ -82,39 +88,50 @@ function sendComment() {
 
 function createCommentBox(rowData) {
     /* See Comment Box structure at bottom of the page */
-    let mainBox = createDiv("comment-box");
+    let mainBox = createDiv({className: "comment-box"});
     // comment-box-user
-    let boxUser = createParagraph("comment-box-user");
-    let userName = createAnchor((rowData.IS_AUTHOR)? "/profile": ("/user/" + rowData.COMMENTER));
-    userName.innerHTML = rowData.USERNAME;
-    let timeLeft = createElement("span");
-    timeLeft.innerHTML = formatDateComment(Date.parse(rowData.COMMENT_DATE));
+    let boxUser = createTag("p", {className: "comment-box-user"});
+    let userName = createTag("a", {
+        href: ((rowData.IS_AUTHOR)? "/profile": ("/user/" + rowData.COMMENTER)),
+        innerHTML: rowData.USERNAME
+    });
+    let timeLeft = createTag("span", {
+        innerHTML: formatDateComment(Date.parse(rowData.COMMENT_DATE))
+    });
     appendChildsArray(boxUser, [userName, timeLeft]);
     // comment-box-data
-    let boxData = createDiv("comment-box-data");
-    let imgAndSettings = createDiv();
-    imgAndSettings.style = "position: relative;";
-    let boxImg = createDiv("comment-box-img");
-    boxImg.style.backgroundColor = ((rowData.BACK_COLOR !== undefined)? rowData.BACK_COLOR: "black");
-    boxImg.appendChild(createParagraph("comment-box-img-p", rowData.USERNAME.charAt(0).toUpperCase()));
+    let boxData = createDiv({className: "comment-box-data"});
+    let imgAndSettings = createDiv({style: "position: relative;"});
+    let boxImg = createDiv({
+        className: "comment-box-img",
+        style: "background-color: " + (rowData.BACK_COLOR || "black") + ";"
+    });
+    boxImg.appendChild(createTag("p", {
+        className: "comment-box-img-p",
+        innerHTML: rowData.USERNAME.charAt(0).toUpperCase()
+    }));
     imgAndSettings.appendChild(boxImg);
     if(rowData.IS_AUTHOR) {
-        let settings = createDiv("settings");
-        let settingsP = createParagraph();
-        settingsP.title = "Delete Your Comment";
-        settingsP.id = rowData.ENCRYPT_ID;
+        let settings = createDiv({className: "settings"});
+        let settingsP = createTag("p", {
+            title: "Delete Your Comment",
+            id: rowData.ENCRYPT_ID
+        });
         settingsP.addEventListener("click", function() {
             deleteComment(rowData.ENCRYPT_ID);
         });
         appendChildsArray(settingsP, [createIcon("material-icons", "delete"), createTextNode(" Delete")]);
         settings.appendChild(settingsP);
         imgAndSettings.appendChild(settings);
-        let authorTag = createIcon("material-icons comment-author-tag", "check_box");
-        authorTag.title = "Author of this Image";
+        let authorTag = createIcon("material-icons comment-author-tag", "check_box", {
+            title: "Author of this Image"
+        });
         appendChildsArray(userName, [createTextNode(" "), authorTag]);
     }
-    let commentText = createDiv("comment-box-text");
-    commentText.innerHTML = rowData.COMMENT;
+    let commentText = createDiv({
+        className: "comment-box-text",
+        innerHTML: rowData.COMMENT
+    });
     appendChildsArray(boxData, [imgAndSettings, commentText]);
     appendChildsArray(mainBox, [boxUser, boxData]);
     return mainBox;
@@ -148,7 +165,10 @@ function getLikes() {
         let result = JSON.parse(responseText);
         likeList.innerHTML = "";
         for(let i = 0; i<result.length; i++) {
-            let like = createAnchor("/user/" + result[i].USER_ID, "liker-list-item");
+            let like = createTag("a", {
+                href: "/user/" + result[i].USER_ID,
+                className: "liker-list-item"
+            });
             like.innerHTML = result[i].USERNAME;
             likeList.append(like);
         }

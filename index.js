@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const _database = require("./database/database");
 
+// Port ID
 const PORT_ID = process.env.PORT || 8089;
 
 const destination = "upload/";
@@ -77,7 +78,7 @@ _database(function(database) {
     app.post("/login", function(request, response) {
         const username = request.body.uname.trim();
         database.getIdByUsername(username, function(result) {
-            if(result === undefined || result < 0) {
+            if(result === undefined || result == -1) {
                 response.redirect("/");
             } else {
                 request.session.thisUserId = result;
@@ -152,6 +153,7 @@ _database(function(database) {
             response.redirect("/");
             return;
         }
+        console.log(request.body);
         database.updateProfile(currentUser, request.body, function() {
             response.redirect("/profile");
         });

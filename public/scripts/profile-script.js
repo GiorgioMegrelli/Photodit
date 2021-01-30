@@ -4,9 +4,8 @@ function showUpdateWindow(bool) {
 }
 
 function copyURL(uid) {
-    let localhost = "http://localhost:8089/user/";
-    let textArea = createElement("textarea");
-    textArea.value = localhost + uid;
+    let textArea = createTag("textarea");
+    textArea.value = window.location.origin + "/user/" + uid;
     document.body.appendChild(textArea);
     textArea.select();
     document.execCommand("Copy");

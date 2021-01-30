@@ -1,54 +1,44 @@
 function byId(id) {
     return document.getElementById(id);
 }
-
 function byClass(clName) {
     return document.getElementsByClassName(clName);
 }
-
 function byTag(tag) {
     return document.getElementsByTagName(tag);
 }
 
-function createElement(tag, className = undefined) {
-    let node = document.createElement(tag);
-    if(className !== undefined) {
-        node.className = className;
-    }
-    return node;
+function createTag(tag, attrs = {}) {
+    let element = document.createElement(tag);
+    Object.keys(attrs).forEach(function(key) {
+        element[key] = attrs[key];
+    });
+    return element;
+}
+
+function createDiv(attrs = {}) {
+    return createTag("div", attrs);
+}
+
+function createInput(type, attrs = {}) {
+    attrs["type"] = type;
+    return createTag("input", attrs);
+}
+
+function createIcon(className, text, attrs = {}) {
+    return createTag("i", Object.assign({}, attrs, {
+        className: className,
+        innerHTML: text || ""
+    }));
 }
 
 function createTextNode(value) {
     return document.createTextNode(value);
 }
 
-function createDiv(className = undefined) {
-    return createElement("div", className);
-}
-
-function createAnchor(href, className = undefined) {
-    let a = createElement("a", className);
-    a.href = href;
-    return a;
-}
-
-function _createTextWithClass(tag, className, text) {
-    let elem = createElement(tag, className);
-    elem.appendChild(createTextNode(text));
-    return elem;
-}
-
-function createParagraph(className, text = "") {
-    return _createTextWithClass("p", className, text);
-}
-
-function createIcon(className, text = "") {
-    return _createTextWithClass("i", className, text);
-}
-
-function appendChildsArray(item, array = []) {
+function appendChildsArray(elem, array = []) {
     array.forEach((subElem) => {
-        item.appendChild(subElem);
+        elem.appendChild(subElem);
     });
 }
 
