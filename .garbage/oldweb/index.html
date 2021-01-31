@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photodit</title>
+
+    <!-- meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="../public/styles/reset-css.css" rel="stylesheet">
+    <link href="../public/styles/index-css.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Sansita+Swashed:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-logo">
+            <p>Photodit</p>
+        </div>
+        <div class="header-right">
+            <ul class="header-right-signs">
+                <li>Sign In</li>
+                <li>Sign Up</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="color-picker">
+        <div class="color-picker-desk">
+            <div class="color-picker-menu">
+                <div class="">
+
+                </div>
+                <div class="">
+
+                </div>
+                <div class="">
+
+                </div>
+                <div class="">
+
+                </div>
+                <div class="">
+
+                </div>
+                <div class="">
+
+                </div>
+            </div>
+            <div class="color-picker-items">
+
+            </div>
+            <div class="color-picker-results">
+                <div class="color-picker-results-containter">
+                    <div ondblclick="copyOutput('c-p-output-rgb', 1)">
+                        <p>RGB</p>
+                        <output id="c-p-output-rgb"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-hex', 2)">
+                        <p>HEX</p>
+                        <output id="c-p-output-hex"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-cmyk', 3)">
+                        <p>CMYK</p>
+                        <output id="c-p-output-cmyk"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-hsl', 4)">
+                        <p>HSL</p>
+                        <output id="c-p-output-hsl"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-ps', 5)">
+                        <p>PhotoShop</p>
+                        <output id="c-p-output-ps"></output>
+                    </div>
+                    <div ondblclick="copyOutput('c-p-output-named', 6)">
+                        <p>Color Name</p>
+                        <output id="c-p-output-named"></output>
+                    </div>
+                </div>
+                <p class="color-picker-results-title">
+                    Double Click to Copy
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../public/scripts/color-picker.js"></script>
+    <script src="../public/scripts/index-script.js"></script>
+</body>
+</html>

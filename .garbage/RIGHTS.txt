@@ -1,0 +1,15 @@
+reset-css.css:
+    https://meyerweb.com/eric/tools/css/reset/
+
+camera-icon.png:
+	https://icons-for-free.com/camera-131965017355314519/
+
+Sansita Swashed Font:
+    https://fonts.google.com/specimen/Sansita+Swashed
+
+Roboto Font:
+    https://fonts.google.com/specimen/Roboto
+
+Color Converting:
+    https://gist.github.com/felipesabino/5066336
+    https://css-tricks.com/converting-color-spaces-in-javascript/
