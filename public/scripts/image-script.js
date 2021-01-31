@@ -167,9 +167,9 @@ function getLikes() {
         for(let i = 0; i<result.length; i++) {
             let like = createTag("a", {
                 href: "/user/" + result[i].USER_ID,
-                className: "liker-list-item"
-            });
-            like.innerHTML = result[i].USERNAME;
+                className: "liker-list-item",
+                innerHTML: result[i].USERNAME
+            });;
             likeList.append(like);
         }
     }).catch((err) => {

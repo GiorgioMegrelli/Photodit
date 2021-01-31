@@ -40,8 +40,11 @@ git clone --depth 1 https://github.com/GiorgioMegrelli/Photodit.git
 ```
 npm install
 ```
-- Update connection arguments in "script.sql" to your mysql server configuration
+#### Set up database:
+- Update connection arguments in "database.js" (and "script.sql") to your mysql server configuration
 - Create Tables in mysql Database with "script.sql" in "database" directory
+##### or
+- Use virtual database. See "/database" folder
 #### Start Project:
 ```
 npm start

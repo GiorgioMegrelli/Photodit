@@ -153,7 +153,6 @@ _database(function(database) {
             response.redirect("/");
             return;
         }
-        console.log(request.body);
         database.updateProfile(currentUser, request.body, function() {
             response.redirect("/profile");
         });

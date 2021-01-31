@@ -69,6 +69,7 @@ function showFollowings() {
             }));
         } else {
             for(let i = 0; i<result.length; i++) {
+                result[i].ID = result[i].ID || result[i].USER_ID;
                 list.appendChild(createTag("a", {
                     href: "/user/" + result[i].ID,
                     className: "front-data-follow-item",
@@ -94,6 +95,7 @@ function showFollowers() {
             }));
         } else {
             for(let i = 0; i<result.length; i++) {
+                result[i].ID = result[i].ID || result[i].USER_ID;
                 list.appendChild(createTag("a", {
                     href: "/user/" + result[i].ID,
                     className: "front-data-follow-item",
