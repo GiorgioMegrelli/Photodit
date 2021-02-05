@@ -1,5 +1,8 @@
 function fillWithHeaderContent(element, isEmpty) {
     element.setAttribute("id", "header");
+    if(isEmpty) {
+        element.setAttribute("class", "wc-header-empty");
+    }
     let div = createDiv({
         className: "logo-link"
     });

@@ -9,6 +9,12 @@ body {
     width: 800px;
 }
 
+@media only screen and (max-width: 801px) {
+    .search-center {
+        width: 100%;
+    }
+}
+
 .header-search {
     position: fixed;
     height: 50px;
@@ -31,6 +37,16 @@ body {
     width: 100%;
     height: 60px;
     box-shadow: 7px 6px 4px #D0D0D0;
+}
+
+@media only screen and (max-width: 801px) {
+    .search-space, .search-string {
+        margin: 0 auto;
+        width: calc(100% - 10px);
+    }
+    .search-string p {
+        font-size: 22px;
+    }
 }
 
 .search-string {
@@ -72,6 +88,12 @@ body {
     box-shadow: 7px 6px 4px #D0D0D0;
     overflow: auto;
     overflow-x: hidden;
+}
+
+@media only screen and (max-width: 601px) {
+    .search-result-list {
+        width: 100%;
+    }
 }
 
 .search-result-list-title {

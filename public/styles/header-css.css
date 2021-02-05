@@ -12,6 +12,16 @@
     grid-template-columns: 35% auto 100px;
 }
 
+#header div {
+    text-align: center;
+}
+
+@media only screen and (max-width: 601px) {
+    .wc-header-empty {
+        grid-template-columns: auto !important;
+    }
+}
+
 #header .logo-link {
     text-align: center;
 }
@@ -29,7 +39,38 @@
             user-select: none;
 }
 
+#search-input-gl-input {
+    display: block;
+}
+
+@media only screen and (max-width: 651px) {
+    #header {
+        grid-template-columns: 25% auto 80px;
+    }
+}
+
+@media only screen and (max-width: 651px) {
+    #search-input-gl {
+        width: 0;
+        grid-template-columns: auto;
+    }
+    #search-input-gl-input {
+        display: none;
+    }
+    #header {
+        grid-template-columns: 40% 30% 30%;
+    }
+}
+
+@media only screen and (max-width: 401px) {
+    #header {
+        grid-template-columns: 30% 35% 35%;
+    }
+}
+
 #log-out-form input[type=submit] {
+    margin: 0 auto;
+    width: fit-content;
     position: relative;
     outline: none;
     background-color: rgb(5, 122, 95);

@@ -20,11 +20,14 @@
 <body>
     <wc-custom-header></wc-custom-header>
 
-    <% if(rtype == vars.RETURN_ERR || rtype == vars.RETURN_FALSE) { %>
+    <% let appendScripts;
+    if(rtype == vars.RETURN_ERR || rtype == vars.RETURN_FALSE) {
+        appendScripts = false; %>
     <div class="result-output">
         <p><%= msg %></p>
     </div>
-    <% } else { %>
+    <% } else {
+        appendScripts = true; %>
     <div class="center">
         <div class="overflow-content">
             <p><button onclick="closePupup1()">Close</button></p>
@@ -38,7 +41,7 @@
             <img src="<%= src %>" alt="<%= title %>" class="image">
             <div class="image-info">
                 <p class="content-username">
-                    <span>By </span><a href="<%= userHref %>" class="photo-author"><%= username %></a>
+                    <span>By </span><a href="<%= userHref %>" class="photo-author"><%= username %></a> <span><%= (isAuthor)? "(You)": "" %></span>
                 </p>
                 <p class="content-like">
                     <% if(!isAuthor) { %>
@@ -67,7 +70,7 @@
                     <button id="vis-type-select-button" onclick="changeVisibility()">Change Visibility</button>
                 </p>
                 <p class="image-settings-p2">
-                    <button onclick="deleteThisImage()">Delete Image</button>
+                    <button onclick="deleteThisImage()">Delete</button>
                     <form id="image-del-form" action="/deleteImage" method="POST" style="display: none;">
                         <input id="image-del-form-input" type="text" name="imageId">
                     </form>
@@ -96,10 +99,11 @@
         </div>
         <div class="comments-space"></div>
     </div>
-
+    <% } %>
 
     <script src="../public/scripts/helper-script.js"></script>
     <script src="../public/scripts/helper-components.js"></script>
+    <% if(appendScripts) { %>
     <script src="../public/scripts/image-script.js"></script>
     <script src="../public/scripts/search-script.js"></script>
     <% } %>
