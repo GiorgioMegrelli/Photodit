@@ -12,3 +12,18 @@ function copyURL(uid) {
     textArea.remove();
     alert("Your URL Copied");
 }
+
+(function() {
+    let preventUpload = function(event) {
+        event.preventDefault();
+        alert([
+            "As this application works with virtual database.",
+            "You can't upload any image now."
+        ].join("\n"));
+        return false;
+    };
+    byId("image-upload-form").addEventListener("submit", preventUpload);
+    byId("image-upload-form-submit").addEventListener("click", preventUpload);
+    byId("image-upload-form-input").addEventListener("click", preventUpload);
+    byId("image-upload-form-textarea").addEventListener("focus", preventUpload);
+})();

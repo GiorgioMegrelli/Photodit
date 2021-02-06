@@ -85,9 +85,9 @@
             </div>
         </div>
         <div class="image-uploading">
-            <form action="/upload" method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="image-upload-form">
                 <div class="image-uploading-div">
-                    <input type="file" name="imgpath" accept="image/png, image/gif, image/jpg, image/jpeg">
+                    <input type="file" name="imgpath" accept="image/png, image/gif, image/jpg, image/jpeg" id="image-upload-form-input">
                     <p style="margin-top: 10px;">
                         <label for="upload_vt_select">Visibility Type: </label>
                         <select name="visiType" id="upload_vt_select">
@@ -96,9 +96,9 @@
                             <option value="3" id="upload_in_vt_3">Private</option>
                         </select>
                     </p>
-                    <input type="submit" value="Upload">
+                    <input type="submit" value="Upload" id="image-upload-form-submit">
                 </div>
-                <textarea name="desc" maxlength="512" placeholder="Image Description"></textarea>
+                <textarea name="desc" maxlength="512" placeholder="Image Description" id="image-upload-form-textarea"></textarea>
             </form>
         </div>
         <div class="images-list">

@@ -3,6 +3,7 @@ const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
 const multer = require("multer");
+const imageUrls = require("./database/image-urls");
 const _database = require("./database/database");
 
 // Port ID
@@ -41,12 +42,8 @@ app.use(session({secret: "3.14159265359", saveUninitialized: true, resave: true}
 
 _database(function(database) {
 
-    app.post("/isDatabaseReal", function(request, response) {
-        response.send(database.databaseIsReal);
-    });
-
     app.get("favicon.ico", function(request, response) {
-        response.sendFile("./public/images/favicon.png");
+        response.sendFile("./public/images/favicon.ico");
     });
 
     app.get(["/", "/index", "/index.html"], function(request, response) {
@@ -155,30 +152,6 @@ _database(function(database) {
         }
         database.updateProfile(currentUser, request.body, function() {
             response.redirect("/profile");
-        });
-    });
-
-    app.post("/upload", upload.single("imgpath"), function(request, response) {
-        const currentUser = request.session.thisUserId;
-        if(currentUser === undefined) {
-            response.redirect("/");
-            return;
-        }
-        const originName = request.file.originalname;
-        const filePath = request.file.path;
-        const visiType = parseInt(request.body.visiType);
-        const desc = request.body.desc;
-        database.addPhoto(currentUser, originName, desc, visiType, function(result) {
-            if(result === undefined) {
-                response.redirect("/profile");
-                return;
-            }
-            fs.rename(filePath, destination + result.filename, function(err) {
-                if(err) {
-                    console.log(err);
-                }
-                response.redirect("/image/" + result.id);
-            });
         });
     });
 
@@ -353,7 +326,7 @@ _database(function(database) {
             database.getPhotosOf(userId, isfollower, isCurrentUser, function(result) {
                 if(result !== undefined) {
                     for(let i = 0; i<result.length; i++) {
-                        result[i].src = toImageFullPath(result[i].PHOTO_ID, result[i].FMT_ID);
+                        result[i].src = toImageFullPath(result[i].PHOTO_ID);
                     }
                     response.send(result);
                 }
@@ -420,7 +393,7 @@ _database(function(database) {
                     if(returnVal.isAuthor || typeId == visibilities.PUBLIC) {
                         returnVal.title = result.DESCRIPTION;
                         returnVal.desc = result.DESCRIPTION;
-                        returnVal.src = toImageFullPath(result.PHOTO_ID, result.FMT_ID);
+                        returnVal.src = toImageFullPath(result.PHOTO_ID);
                         if(returnVal.isAuthor) {
                             returnVal.userHref = "/profile";
                         } else {
@@ -444,7 +417,7 @@ _database(function(database) {
                             } else {
                                 returnVal.title = result.DESCRIPTION;
                                 returnVal.desc = result.DESCRIPTION;
-                                returnVal.src = toImageFullPath(result.PHOTO_ID, result.FMT_ID);
+                                returnVal.src = toImageFullPath(result.PHOTO_ID);
                                 returnVal.userHref = "/user/" + result.AUTHOR_ID;
                                 returnVal.username = result.USERNAME;
                                 returnVal.uploaddate = result.UPLOAD_DATE;
@@ -696,8 +669,8 @@ function formatDate(time) {
     return str;
 }
 
-function toImageFullPath(photoId, fmtId) {
-    return ("../" + destination + (photoId + "." + imgExtentionsIndex[fmtId]));
+function toImageFullPath(photoId) {
+    return imageUrls[photoId];
 }
 
 /* My "Encrypting" and "Decrypting" */
